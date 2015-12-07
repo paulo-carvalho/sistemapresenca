@@ -1,0 +1,19 @@
+CREATE TABLE Usuario
+(matr char(9) NOT NULL, 
+nome varchar(50) NOT NULL,
+email char(30) NOT NULL,
+cargo char(30),
+setor char(30),
+senha varchar(20) NOT NULL,
+PRIMARY KEY (matr),
+UNIQUE(email))
+
+CREATE TABLE Presenca
+(id int(6) UNSIGNED AUTO_INCREMENT,
+matr char(9) NOT NULL,
+data_inicio char(9) NOT NULL,
+data_fim char(9) NOT NULL,
+tipo char(1) NOT NULL check (tipo='P' or tipo='NP'),
+PRIMARY KEY(id),
+FOREIGN KEY matr REFERENCES Usuario
+
