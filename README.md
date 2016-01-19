@@ -1,7 +1,7 @@
 # Presença
 Sistema de Controle de Presença da UFMG Informática Júnior
 
-ijunior.com.br/presenca
+EDIT 18/01/2016: projeto congelado, entregue à UFMG Informática Júnior.
 
 ## Identidade Visual - IJr. Logo
 Cor primária: #00548e
