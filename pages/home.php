@@ -1,4 +1,35 @@
 <!doctype html>
+<?php
+	require_once("connect/testmysql_p.php");
+
+	// preparar query
+	$stmt = $conn->prepare("SELECT `matr`, `nome` FROM `usuario` WHERE `conectado`=?");
+	// definir dependencias da query preparada
+	$stmt->bind_param("i", $conectado);
+
+	// alterar valor da dependencia e executar query
+	$conectado = 1;
+	$stmt->execute();
+
+	// matriz que recebe os membros online
+	$membros = array("matricula" => array(),
+					"nome" => array());
+
+	// alinhar variaveis de resultados com ordem
+	$stmt->bind_result($nMatricula, $nMembro);
+
+	// definindo valores por linha encontrada no select
+	while ( $stmt->fetch() ) {
+	    array_push($membros["matricula"], $nMatricula);
+	    array_push($membros["nome"], $nMembro);
+	}
+
+	// DEBUG
+	// var_dump($arr);
+
+	$stmt->close();
+ 	$conn->close();
+?>
 <html class="no-js" lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -11,41 +42,9 @@
 	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
 </head>
 <body>
-	<nav class="top-bar" data-topbar role="navigation">
-		<ul class="title-area">
-			<li class="name logo">
-				<a href="index.html"><img src="../img/logomenu.png"></a>
-			</li>
-			<!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
-			<li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
-		</ul>
-		<section class="top-bar-section">
-			<!-- Right Nav Section -->
-			<ul class="right">
-				<li><a href="home.html">Home</a></li>
-				<li class="has-dropdown">
-					<a href="#">Usuário</a>
-					<ul class="dropdown">
-						<li><a href="cadastro.html">Cadastrar</a></li>
-						<li><a href="editar_usuario.html">Editar</a></li>
-						<li><a href="lista_usuarios.html">Listar</a></li>
-					</ul>
-				</li>
-				<li class="has-dropdown">
-					<a href="#">Relatório</a>
-					<ul class="dropdown">
-						<li><a href="relatorio_pessoal.html">Pessoal</a></li>
-						<li><a href="relatorio_geral.html">Geral</a></li>
-					</ul>
-				</li>
-				<li><a href="lancar_horas.html">Lançar Horas</a></li>
-				<li><a href="#">Sair</a></li>
-			</ul>
-			<!-- Left Nav Section -->
-			<ul class="left">
-			</ul>
-		</section>
-	</nav>
+	<?php
+		require_once("menu/menu.html");
+	?>
 
 	<br>
 
@@ -90,6 +89,11 @@
 								<td>Gabriela Brant Alves</td>
 								<td class="text-center"><i class="fi-power"></td>
 							</tr>
+							<?php
+								for ($i=0; $i < $membros["matricula"]; $i++) {
+									#TODO
+								}
+							?>
 						</tbody>
 					</table>
 				</div>

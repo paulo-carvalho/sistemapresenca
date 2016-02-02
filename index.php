@@ -4,16 +4,15 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Controle de Presença</title>
-	<link rel="stylesheet" href="../css/foundation.css" />
-	<script src="../js/vendor/modernizr.js"></script>
-	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
-	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="css/foundation.css" />
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
 	<br>
 	<div class="row">
 		<div class="large-4 medium-4 small-12 push-4 columns ">
-			<center><a href="index.html"><img src="../img/logo.png"></a></center>
+			<center><a href="<?php echo $_SERVER['PHP_SELF'];?>"><img src="img/logo.png"></a></center>
 		</div>
 	</div>
 	<br>
@@ -26,19 +25,19 @@
 				<div class="row">
 					<div class="large-8 medium-8 small-12 push-2 columns text-center">
 						<form>
-							<label> Matrícula: <input type="text" /> </label>
-							<label> Senha: <input type="password" /> </label>
+							<label> Matrícula: <input type="text" pattern="[0-9]{10}" tabindex="1" /> </label>
+							<label> Senha: <input type="password" tabindex="2" /> </label>
 						</div>
 					</div>
 					<div class="row">
 						<div class="large-6 medium-6 small-12 push-6 columns text-right">
-							<a href="esqueci_senha.html" style="font-size:11px">Esqueceu sua senha?</a>
+							<a href="pages/esquecer_senha.php" style="font-size:11px">Esqueceu sua senha?</a>
 						</div>
 					</div>
 					<br>
 					<div class="row">
 						<div class="large-12 medium-12 small-12 columns text-center">
-							<a href="home.html" class="small round button">Entrar </a>
+							<a href="pages/home.php" class="small round button">Entrar </a>
 						</div>
 					</div>
 				</form>
@@ -48,4 +47,5 @@
 </div>
 </div>
 </body>
+	<script src="js/vendor/modernizr.js"></script>
 </html>
