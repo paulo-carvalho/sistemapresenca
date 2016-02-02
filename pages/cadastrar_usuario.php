@@ -58,13 +58,13 @@
 	$msg_erro = "";
 	$msg_sucesso = "";
 	if (isset($sql))
-		if (!mysqli_query($con, $sql)) {
+		if (!mysqli_query($conn, $sql)) {
 	  		//$msg_erro = 'Erro: ' . mysqli_error($con);
 	  		$msg_erro = "Não foi possível realizar essa operação.";
 		} else {
 			$msg_sucesso = "Usuário cadastrado com sucesso!";
 		}
-	mysqli_close($con);
+	mysqli_close($conn);
 ?>
 
 <html class="no-js" lang="en">
@@ -79,7 +79,7 @@
 </head>
 <body>
 	<?php
-		require_once("template/menu.html");
+		require_once("menu/menu.html");
 	?>
 
 	<br>
@@ -125,8 +125,9 @@
 							</label>
     						<small class="error">Cargo é um campo obrigatório.</small>
 
-							<label for="setor">Setor:
-								<select name="setor" id="setor">
+							<label for="diretoria">Diretoria:
+								<select name="diretoria" id="diretoria">
+									<!-- puxar opções do banco e adicionar linha null-->
 									<option value="financeiro">Financeiro</option>
 									<option value="marketing">Marketing</option>
 									<option value="presidencia">Presidência</option>

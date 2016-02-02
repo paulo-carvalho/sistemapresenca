@@ -3,7 +3,7 @@
 	require_once("connect/testmysql_p.php");
 
 	/* QUERY */
-	$sql = "SELECT `matr`, `nome` FROM `usuario` ORDER BY `cargo` ASC, `nome` ASC";
+	$sql = "SELECT `matr`, `nome` FROM `usuarios` ORDER BY `cargo` ASC, `nome` ASC";
 
 	/* DEBUG */
 	//if(isset($sql))
@@ -12,13 +12,13 @@
 	/* OPERAÇÃO DE CONSULTA */
 	$msg_erro = "";
 	if (isset($sql))
-		if (!mysqli_query($con, $sql)) {
+		if (!mysqli_query($conn, $sql)) {
 	  		//$msg_erro = 'Erro: ' . mysqli_error($con);
 	  		$msg_erro = "Não foi possível realizar essa operação.";
 		} else {
-			$result = mysqli_query($con, $sql);
+			$result = mysqli_query($conn, $sql);
 		}
-	mysqli_close($con);
+	mysqli_close($conn);
 ?>
 <html class="no-js" lang="en">
 <head>
@@ -34,7 +34,7 @@
 </head>
 <body>
 	<?php
-		require_once("template/menu.html");
+		require_once("menu/menu.html");
 	?>
 
 	<br>
@@ -61,10 +61,13 @@
 									<th>Nome</th>
 									<th class="text-center">Ver</th>
 									<th class="text-center">Editar</th>
-									<th class="text-center">Excluir</th>
+									<th class="text-center">Desativar</th>
 
 								</tr>
 							</thead>
+							
+							<!-- Direcionar para as paginas corretas e exibir resultados !-->
+
 							<tbody>
 								<?php
 									while ($row = mysqli_fetch_assoc($result)) {
@@ -77,8 +80,18 @@
 										"</tr>";
 									}
 								?>
+
+								
+
 							</tbody>
 						</table>
+						
+						<!-- Colocar botão para exibir os membros com permissao de pós juniores -->
+						<div class="row">
+							<div class="large-12 medium-12 small-12 columns text-center">
+								<a href="pages/home.php" class="small round button">Ver Membros Pós-Juniores </a>
+							</div>
+						</div>
 
 					</div>
 				</div>
