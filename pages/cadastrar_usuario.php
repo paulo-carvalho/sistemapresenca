@@ -3,35 +3,40 @@
 	require_once("connect/testmysql_p.php");
 
 	/* PARAMETROS */
-	if(isset($_POST['name']))
-		$name = $_POST['name'];
+	if(isset($_POST['nome']))
+		$nome = $_POST['nome'];
 	else
-		$name = "";
+		$nome = "";
 
-	if(isset($_POST['email']))
-		$email = $_POST['email'];
+	if(isset($_POST['email_pessoal']))
+		$email_pessoal = $_POST['email_pessoal'];
 	else
-		$email = "";
+		$email_pessoal = "";
+
+        if(isset($_POST['email_profissional']))
+                $email_profissional = $_POST['email_profissional'];
+        else
+                $email_profissional = "";
 
 	if(isset($_POST['cargo']))
 		$cargo = $_POST['cargo'];
 	else
 		$cargo = "";
 
-	if(isset($_POST['setor']))
-		$setor = $_POST['setor'];
+	if(isset($_POST['diretoria']))
+		$diretoria = $_POST['diretoria'];
 	else
-		$setor = "";
+		$diretoria = "";
 
-	if(isset($_POST['matricula']))
-		$matricula = substr($_POST['matricula'], 2);
+	if(isset($_POST['matr']))
+		$matr = substr($_POST['matr'], 2);
 	else
-		$matricula = "";
+		$matr = "";
 
-	if(isset($_POST['passw']))
-		$passw = hash('sha256', $_POST['passw']);
+	if(isset($_POST['senha']))
+		$senha = hash('sha256', $_POST['senha']);
 	else
-		$passw = "";
+		$senha = "";
 
 	if(isset($_POST['confirm_passw']))
 		$confirm_passw = hash('sha256', $_POST['confirm_passw']);
@@ -46,9 +51,25 @@
 	else
 		$permissao = "comum";
 
-	/* QUERY */
-	if($matricula != "")
-		$sql = "INSERT INTO usuario VALUES('".$matricula."', '".$name."', '".$email."', '".$cargo."', '".$setor."', '".$passw."', '".$permissao."')";
+        /* QUERIES  */
+        if($matricula != "")
+                $sql = "INSERT INTO usuario VALUES('".$matr."', '".$nome."', '".$senha."', '".$email_pessoal."', '".$email_profissional."', '".$diretoria."', '".$cargo."', '".$permissao."', '".$conectado."', '".$ingresso_faculdade."', '".$data_criacao."', '".$data_desligamento."')" ;
+
+
+        $diretorias = "SELECT id_diretoria, nome_diretoria FROM diretorias";                       
+	$select_diretorias = mysqli_query($conn, $diretorias);
+			while ($row = mysqli_fetch_assoc($select_diretorias)) {
+									    echo "<tr>".
+											"<td>".$row['id_diretoria']."</td>".
+											"<td>".$row['nome_diretoria']."</td>".
+											"<td class='text-center'><i class='fi-zoom-in'></td>".
+											"<td class='text-center'><i class='fi-page-edit'></i></td>".
+											"<td class='text-center'><i class='fi-x'></td>".
+										"</tr>";
+									}
+	
+
+								
 
 	/* DEBUG */
 	//if(isset($sql))
@@ -107,14 +128,18 @@
 						<form id="cadastro" name="cadastro" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" data-abide>
 							
 							<label for="name"> Nome Completo: <span style="color: red;">*</span> 
-								<input type="text" id="name" name="name" required pattern="[a-zA-Z]+" autocomplete="off" />
+								<input type="text" id="nome" name="nome" required pattern="[a-zA-Z]+" autocomplete="off" />
 							</label>
     						<small class="error">Nome é um campo obrigatório.</small>
 
-							<label for="email"> Email: <span style="color: red;">*</span> 
-								<input type="text" id="email" name="email" required pattern="[a-zA-Z]+@[a-zA-Z]+\.[a-zA-z]+" autocomplete="off" />
+							<label for="email"> Email Pessoal: <span style="color: red;">*</span> 
+								<input type="text" id="email_pessoal" name="email_profissional" required pattern="[a-zA-Z]+@[a-zA-Z]+\.[a-zA-z]+" autocomplete="off" />
 							</label>
-    						<small class="error">E-mail é um campo obrigatório.</small>
+    						<small class="error">E-mail Pessoal é um campo obrigatório.</small> 
+                                                       
+							 <label for="email"> Email Profissional: 
+                                                                <input type="text" id="email_profissional" name="email_profissional" required pattern="[a-zA-Z]+@[a-zA-Z]+\.[a-zA-z]+" autocomplete="off" />
+                                                        </label>
 
 							<label for="cargo">Cargo: <span style="color: red;">*</span> 
 								<select name="cargo" id="cargo" required>
@@ -126,14 +151,45 @@
     						<small class="error">Cargo é um campo obrigatório.</small>
 
 							<label for="diretoria">Diretoria:
-								<select name="diretoria" id="diretoria">
+								<?php
+ require_once("connect/testmysql_p.php");
+
+  $diretorias = "SELECT id_diretoria, nome_diretoria FROM diretorias";
+        $select_diretorias = mysqli_query($conn, $diretorias);
+                        while ($row = mysqli_fetch_assoc($select_diretorias)) {
+                                                                            echo "<tr>".
+                                                                                        "<td>".$row['id_diretoria']."</td>".
+                                                                                        "<td>".$row['nome_diretoria']."</td>".
+                                                                                        "<td class='text-center'><i class='fi-zoom-in'></td>".
+                                                                                        "<td class='text-center'><i class='fi-page-edit'></i></td>".
+                                                                                        "<td class='text-center'><i class='fi-x'></td>".
+                                                                                "</tr>";
+                                                                        }
+		
+							//	echo '<select name="diretoria" id="diretoria">';
+		//					 		while ($row = mysqli_fetch_assoc($select_diretorias)) {
+                                                                           /* echo "<tr>".
+                                                                                        "<td>".$row['id_diretoria']."</td>".
+                                                                                        "<td>".$row['nome_diretoria']."</td>".
+                                                                                        "<td class='text-center'><i class='fi-zoom-in'></td>".
+                                                                                        "<td class='text-center'><i class='fi-page-edit'></i></td>".
+                                                                                        "<td class='text-center'><i class='fi-x'></td>".
+                                                                                "</tr>";*/
+
+									// echo "<option value='0'>".$row['nome_diretoria']."</option>";
+									//	echo '<option value="'.$row['id_diretoria'].'" >'.$row['nome_diretoria'].'</option>';
+								//	echo "$row[id_diretoria], $row[id_diretoria]";
+
+								//	}
+							//	echo '</select>'; 
+								?>
 									<!-- puxar opções do banco e adicionar linha null-->
-									<option value="financeiro">Financeiro</option>
+								<!--	<option value="financeiro">Financeiro</option>
 									<option value="marketing">Marketing</option>
 									<option value="presidencia">Presidência</option>
 									<option value="projetos">Projetos</option>
 									<option value="rh">Recursos Humanos</option>
-								</select>
+								-->
 							</label>
 
 							<hr>
