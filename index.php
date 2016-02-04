@@ -24,7 +24,7 @@
 				<br>
 				<div class="row">
 					<div class="large-8 medium-8 small-12 push-2 columns text-center">
-						<form>
+						<form name="credenciamento" action="#" method="post">
 							<label> Matrícula: <input type="text" pattern="[0-9]{10}" tabindex="1" name="matricula" /> </label>
 							<label> Senha: <input type="password" tabindex="2" name="senha"/> </label>
 						</div>
@@ -37,7 +37,7 @@
 					<br>
 					<div class="row">
 						<div class="large-12 medium-12 small-12 columns text-center">
-							<a href="pages/home.php" class="small round button">Entrar </a>
+							<a role="button" aria-label="submit form" href="pages/verificar_usuario.php" class="small round button">Entrar </a>
 						</div>
 					</div>
 				</form>
