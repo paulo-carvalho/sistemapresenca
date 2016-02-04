@@ -3,7 +3,7 @@
 	require_once("connect/testmysql_p.php");
 
 	// preparar query
-	$stmt = $conn->prepare("SELECT `matr`, `nome` FROM `usuario` WHERE `conectado`=?");
+	$stmt = $conn->prepare("SELECT `matr`, `nome` FROM `usuarios` WHERE `conectado`=?");
 	// definir dependencias da query preparada
 	$stmt->bind_param("i", $conectado);
 
@@ -70,28 +70,21 @@
 							<tr>
 								<th>Matrícula</th>
 								<th>Nome</th>
-								<th></th>
+								<th class="text-center">Logoff</th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
-								<td>2013062901</td>
-								<td>Gabriela Brant Alves</td>
-								<td class="text-center"><i class="fi-power"></td>
-							</tr>
-							<tr>
-								<td>2013062901</td>
-								<td>Gabriela Brant Alves</td>
-								<td class="text-center"><i class="fi-power"></td>
-							</tr>
-							<tr>
-								<td>2013062901</td>
-								<td>Gabriela Brant Alves</td>
-								<td class="text-center"><i class="fi-power"></td>
-							</tr>
 							<?php
-								for ($i=0; $i < $membros["matricula"]; $i++) {
-									#TODO
+								for ($i=0; $i < count($membros["matricula"]); $i++) {
+							?>
+
+							<tr>
+								<td><?php echo $membros["matricula"][$i]; ?></td>
+								<td><?php echo $membros["nome"][$i]; ?></td>
+								<td class="text-center"><i class="fi-power"></td>
+							</tr>
+
+							<?php
 								}
 							?>
 						</tbody>
