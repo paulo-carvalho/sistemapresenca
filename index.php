@@ -1,5 +1,6 @@
 <!doctype html>
 <?php
+// variavel booleana para verificar se o usuario informou senha de forma incorreta
 $senha_incorreta = 0;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -19,9 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$stmt->bind_result($verificador);
 	$stmt->fetch();
 
-	if($verificador == $senha)
+	if($verificador == $senha) {
+		session_start();
+		$_SESSION['matricula'] = $matricula;
     	header("Location: pages/home.php");
-	else {
+	} else {
 		$senha_incorreta = 1;
 	}
 
@@ -52,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 	<div class="row">
 		<div class="large-8 medium-8 small-12 large-push-2 medium-push-2 alert-box alert">
-			Senha incorreta!
+			Credenciais incorretas! Informe sua matrícula e senha novamente.
 			<a href="" class="close">&times;</a>
 		</div>
 	</div>
