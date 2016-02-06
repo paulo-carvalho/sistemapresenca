@@ -1,4 +1,34 @@
 <!doctype html>
+<?php
+$senha_incorreta = 0;
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+	require_once("pages/connect/testmysql_p.php");
+
+    // Salva duas variáveis com o que foi digitado no formulário
+    // Detalhe: faz uma verificação com isset() pra saber se o campo foi preenchido
+    $matricula = (isset($_POST['matricula'])) ? $_POST['matricula'] : '';
+    $senha = (isset($_POST['senha'])) ? hash("sha256", $_POST['senha']) : '';
+
+	// preparar query
+	$stmt = $conn->prepare("SELECT `senha` FROM `usuarios` WHERE `matr`=? LIMIT 1");
+	// definir dependencias da query preparada
+	$stmt->bind_param("s", $matricula);
+	$stmt->execute();
+
+	$stmt->bind_result($verificador);
+	$stmt->fetch();
+
+	if($verificador == $senha)
+    	header("Location: pages/home.php");
+	else {
+		$senha_incorreta = 1;
+	}
+
+	$stmt->close();
+ 	$conn->close();
+}
+?>
 <html class="no-js" lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -17,6 +47,20 @@
 	</div>
 	<br>
 
+<?php
+	if($senha_incorreta == 1) {
+?>
+	<div class="row">
+		<div class="large-8 medium-8 small-12 large-push-2 medium-push-2 alert-box alert">
+			Senha incorreta!
+			<a href="" class="close">&times;</a>
+		</div>
+	</div>
+
+<?php
+	}
+?>
+
 	<div class="row">
 		<div class="large-6 medium-6 small-12 push-3 columns">
 			<div class="panel">
@@ -24,7 +68,7 @@
 				<br>
 				<div class="row">
 					<div class="large-8 medium-8 small-12 push-2 columns text-center">
-						<form name="credenciamento" action="#" method="post">
+						<form name="credenciamento" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
 							<label> Matrícula: <input type="text" pattern="[0-9]{10}" tabindex="1" name="matricula" /> </label>
 							<label> Senha: <input type="password" tabindex="2" name="senha"/> </label>
 						</div>
@@ -37,7 +81,7 @@
 					<br>
 					<div class="row">
 						<div class="large-12 medium-12 small-12 columns text-center">
-							<a role="button" aria-label="submit form" href="pages/verificar_usuario.php" class="small round button">Entrar </a>
+							<button class="small round button" name="Enviar" type="submit">Enviar</button>
 						</div>
 					</div>
 				</form>
@@ -48,4 +92,10 @@
 </div>
 </body>
 	<script src="js/vendor/modernizr.js"></script>
+	<script src="js/vendor/jquery.js"></script>
+	<script src="js/foundation/foundation.js"></script>
+	<script src="js/foundation/foundation.topbar.js"></script>
+	<script type="text/javascript">
+		$(document).foundation();
+	</script>
 </html>
