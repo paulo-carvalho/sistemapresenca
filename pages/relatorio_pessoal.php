@@ -1,4 +1,20 @@
 <!doctype html>
+<?php
+	require_once("connect/testmysql_p.php");
+
+	session_start();
+
+	$stmt = $conn->prepare("SELECT `nome` FROM `usuarios` WHERE `matr`=?");
+	// definir dependencias da query preparada
+	$stmt->bind_param("s", $_SESSION['matricula']);
+	$stmt->execute();
+
+	$stmt->bind_result($nomeUsuario);
+	$stmt->fetch();
+
+	$stmt->close();
+ 	$conn->close();
+?>
 <html class="no-js" lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -26,8 +42,8 @@
 					<div class="large-8 medium-10 large-push-2 medium-push-1 columns">
 						<form>
 							<div class="text-center">
-								<h4>Gabriela Brant Alves</h4>
-								<h5>2013062901</h5>
+								<h4><?php echo $nomeUsuario; ?></h4>
+								<h5><?php echo $_SESSION['matricula'];?></h5>
 							</div>
 							<br>
 
@@ -54,7 +70,11 @@
 							</div>
 
 							<br>
-							<img src="../img/pareto_chart.jpg">
+							<div class="row">
+								<div class="large-12 columns">
+									<div id="chart_div"></div>
+								</div>
+							</div>
 							<br><br>
 
 							<table class="large-12 small-12 columns">
@@ -110,13 +130,51 @@
 </div>
 </div>
 </div>
-
+	<!-- Scripts para carregar foundation -->
 	<script src="../js/vendor/modernizr.js"></script>
 	<script src="../js/vendor/jquery.js"></script>
 	<script src="../js/foundation/foundation.js"></script>
 	<script src="../js/foundation/foundation.topbar.js"></script>
+	<!-- Carrega AJAX API para Google Charts-->
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript">
 		$(document).foundation();
-	</script>
+
+		// Load the Visualization API and the piechart package.
+		google.charts.load('current', {packages: ['corechart'], 'language': 'pt-br'});
+
+		// Set a callback to run when the Google Visualization API is loaded.
+		google.charts.setOnLoadCallback(drawChart);
+
+		// Callback that creates and populates a data table,
+		// instantiates the pie chart, passes in the data and
+		// draws it.
+		function drawChart() {
+			// Create the data table.
+			var data = google.visualization.arrayToDataTable([
+				['Month', 'Bolivia', 'Ecuador', 'Madagascar', 'Papua New Guinea', 'Rwanda', 'Average'],
+				['2004/05',  165,      938,         522,             998,           450,      614.6],
+				['2005/06',  135,      1120,        599,             1268,          288,      682],
+				['2006/07',  157,      1167,        587,             807,           397,      623],
+				['2007/08',  139,      1110,        615,             968,           215,      609.4],
+				['2008/09',  136,      691,         629,             1026,          366,      569.6]
+			]);
+
+			// Set chart options
+			var options = {
+				title : 'Relatório de Presença Pessoal',
+				vAxis: {title: 'Horas Acumuladas'},
+				hAxis: {title: 'Semanas'},
+				seriesType: 'bars',
+				series: {5: {type: 'line'}}, // A quinta coluna da tabela de dados é gráfico de linha
+				height: '500'
+			};
+
+			// Instantiate and draw our chart, passing in some options.
+			var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+			chart.draw(data, options);
+		}
+    </script>
+
 </body>
 </html>
