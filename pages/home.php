@@ -5,11 +5,26 @@
 	session_start();
 
 // ALTERAR ACAO DE BATER PONTO
-	//TODO
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-		// $stmt = $conn->prepare("UPDATE `usuarios` SET `conectado` =? WHERE `usuarios`.`matr` =?;");
-		// // definir dependencias da query preparada
-		// $stmt->bind_param("i", $conectado);
+		// Batendo ponto na tabela de presenca
+		$stmt = $conn->prepare("INSERT INTO `presenca` (`id_presenca`, `matr`, `data`, `entrada`) VALUES (NULL, ?, NOW(), ?);");
+		// definir dependencias da query preparada
+		$stmt->bind_param("ii", $sessaoMatricula, $alterarConectado);
+
+		$sessaoMatricula = $_SESSION['matricula'];
+		if (isset($_POST['alterarConectado']))
+			$alterarConectado = ($_POST['alterarConectado'] == 0) ? 1 : 0;
+		else
+			$alterarConectado = 0;
+		$stmt->execute();
+
+		// Atualizando na tabela usuarios
+		$stmt = $conn->prepare("UPDATE `usuarios` SET `conectado` =? WHERE `usuarios`.`matr` =?;");
+		// definir dependencias da query preparada
+		$stmt->bind_param("is", $alterarConectado, $sessaoMatricula);
+
+		// Parametros ja definidos para a query anterior
+		$stmt->execute();
 	}
 
 // LISTAGEM DE USUARIOS
@@ -37,12 +52,12 @@
 
 // VERIFICAR SE USUARIO BATEU PONTO OU NAO
 	// preparar query
-	$stmt = $conn->prepare("SELECT `conectado` FROM `usuarios` WHERE `matr`=?");
+	$stmt = $conn->prepare("SELECT `conectado`, `nome` FROM `usuarios` WHERE `matr`=?");
 	// definir dependencias da query preparada
 	$stmt->bind_param("s", $_SESSION['matricula']);
 	$stmt->execute();
 
-	$stmt->bind_result($conectadoUsuario);
+	$stmt->bind_result($conectadoUsuario, $nomeUsuario);
 	$stmt->fetch();
 
 	$stmt->close();
@@ -73,7 +88,7 @@
 ?>
 		<div class="row">
 			<div class="large-8 medium-8 small-12 large-push-2 medium-push-2 alert-box success">
-				Você atualmente está na empresa.
+				<?php echo $nomeUsuario; ?>, você atualmente está na empresa.
 				<a href="" class="close">&times;</a>
 			</div>
 		</div>
@@ -82,7 +97,7 @@
 ?>
 		<div class="row">
 			<div class="large-8 medium-8 small-12 large-push-2 medium-push-2 alert-box alert">
-				Você atualmente NÃO está na empresa.
+				<?php echo $nomeUsuario; ?>, você atualmente NÃO está na empresa.
 				<a href="" class="close">&times;</a>
 			</div>
 		</div>
@@ -144,12 +159,13 @@
 			<div class="row">
 				<div class="large-6 medium-6 small-6 columns">
 				<form name="baterPonto" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
-					<input type="hidden" name="conectadoUsuario" value="<?php echo $conectadoUsuario; ?>">
-					<p><a href="#" class="button expand">Sim</a></p>
+					<input type="hidden" name="alterarConectado" value="<?php echo $conectadoUsuario; ?>">
+					<!-- <a href="#" class="button expand">Sim</a> -->
+					<button class="button expand" name="Sim" type="submit">Sim</button>
 				</form>
 				</div>
 				<div class="large-6 medium-6 small-6 columns">
-					<p><a href="#" class="button expand close-modal">Não</a></p>
+					<a href="#" class="button expand close-modal">Não</a>
 				</div>
 			</div>
 

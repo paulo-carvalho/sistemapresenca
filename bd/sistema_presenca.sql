@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 02, 2016 at 06:19 PM
+-- Generation Time: Feb 07, 2016 at 02:56 AM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -46,6 +46,23 @@ INSERT INTO `diretorias` (`id_diretoria`, `nome_diretoria`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `evento`
+--
+
+CREATE TABLE IF NOT EXISTS `evento` (
+  `id_evento` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `nome_evento` varchar(100) NOT NULL,
+  `data_inicio` datetime NOT NULL,
+  `data_fim` datetime NOT NULL,
+  `observacoes` text,
+  `matr` char(10) NOT NULL,
+  PRIMARY KEY (`id_evento`),
+  KEY `fk_evento_usuarios_idx` (`matr`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Tabela para registrar todo e qualquer tipo de evento não presencial que conta nas horas presenciais do membro (Reuniões Gerais, eventos MEJ).' AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `permissoes`
 --
 
@@ -73,14 +90,19 @@ INSERT INTO `permissoes` (`id_permissoes`, `nome_permissoes`) VALUES
 CREATE TABLE IF NOT EXISTS `presenca` (
   `id_presenca` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `matr` char(10) NOT NULL,
-  `data_inicio` datetime NOT NULL,
-  `data_fim` datetime NOT NULL,
-  `tipo` char(2) NOT NULL COMMENT 'presencial (P) ou nao presencial (NP)',
-  `observacoes` text,
-  `evento` varchar(100) DEFAULT NULL,
+  `data` datetime NOT NULL,
+  `entrada` int(11) NOT NULL COMMENT '0: usuário bateu ponto para sair\n1: usuário bateu ponto para entrar',
   PRIMARY KEY (`id_presenca`),
   KEY `matr` (`matr`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COMMENT='Tabela para registrar os momentos que o membro bate ponto: entrando e saindo da empresa.' AUTO_INCREMENT=3 ;
+
+--
+-- Dumping data for table `presenca`
+--
+
+INSERT INTO `presenca` (`id_presenca`, `matr`, `data`, `entrada`) VALUES
+(1, '2012055214', '2016-02-06 23:08:00', 1),
+(2, '2012055214', '2016-02-06 23:51:38', 0);
 
 -- --------------------------------------------------------
 
@@ -112,12 +134,18 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 --
 
 INSERT INTO `usuarios` (`matr`, `nome`, `senha`, `email_pessoal`, `email_profissional`, `diretoria`, `cargo`, `permissao`, `conectado`, `ingresso_faculdade`, `data_criacao`, `data_desligamento`) VALUES
-('1120120552', 'Paulo', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'paulo@paulo.com', '', 1, 'trainee', 1, 0, '0000-0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-('2012055214', 'Pauloa', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'paulo@paulo.ccom', '', 2, 'trainee', 1, 0, '0000-0', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+('1120120552', 'Paulo', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'paulo@paulo.com', '', 1, 'trainee', 1, 1, '0000-0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+('2012055214', 'Pauloa Pauloa Pauloa Pauloa Pauloa', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'paulo@paulo.ccom', '', 2, 'trainee', 1, 0, '0000-0', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `evento`
+--
+ALTER TABLE `evento`
+  ADD CONSTRAINT `fk_evento_usuarios` FOREIGN KEY (`matr`) REFERENCES `usuarios` (`matr`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `presenca`
