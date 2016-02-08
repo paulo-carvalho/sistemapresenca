@@ -4,9 +4,37 @@
 
 	session_start();
 
+// LISTAR PRESENCA DO USUARIO
+	//montando esqueleto da sentenca preparada
+	$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=?;");
+	// definir dependencias da query preparada
+	$stmt->bind_param("s", $matricula);
+
+	$matricula = $_SESSION['matricula'];
+	$stmt->execute();
+
+	// matriz que recebe informacoes da presenca do usuario
+	$presenca = array("data" => array(),
+					"entrada" => array());
+	// alinhar variaveis de resultados com ordem
+	$stmt->bind_result($presenca['data'], $presenca['entrada']);
+
+	$data_inicio = new DateTime("0000-00-00 00:00:00");
+	$data_fim = "";
+	// definindo valores por linha encontrada no select
+	for($i=0; $stmt->fetch(); $i++) {
+		$data_fim = new DateTime($presenca['data']);
+		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
+		if($i > 0)
+			// if(($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1)
+	    		echo date_diff($data_inicio, $data_fim)->format('%h:%i:%s');
+		$data_inicio = $data_fim;
+	}
+
+// RECONHECER NOME DE USUARIO
 	$stmt = $conn->prepare("SELECT `nome` FROM `usuarios` WHERE `matr`=?");
 	// definir dependencias da query preparada
-	$stmt->bind_param("s", $_SESSION['matricula']);
+	$stmt->bind_param("s", $matricula);
 	$stmt->execute();
 
 	$stmt->bind_result($nomeUsuario);
