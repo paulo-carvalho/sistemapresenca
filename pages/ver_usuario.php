@@ -10,70 +10,90 @@
 	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
 </head>
 <body>
-	<nav class="top-bar" data-topbar role="navigation">
-		<ul class="title-area">
-			<li class="name logo">
-				<a href="index.html"><img src="../img/logomenu.png"></a>
-			</li>
-			<!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
-			<li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
-		</ul>
-		<section class="top-bar-section">
-			<!-- Right Nav Section -->
-			<ul class="right">
-				<li><a href="home.html">Home</a></li>
-				<li class="has-dropdown">
-					<a href="#">Usuário</a>
-					<ul class="dropdown">
-						<li><a href="cadastro.html">Cadastrar</a></li>
-						<li><a href="editar_usuario.html">Editar</a></li>
-						<li><a href="ver_usuario.html">Listar</a></li>
-					</ul>
-				</li>
-				<li class="has-dropdown">
-					<a href="#">Relatório</a>
-					<ul class="dropdown">
-						<li><a href="relatorio_pessoal.html">Pessoal</a></li>
-						<li><a href="relatorio_geral.html">Geral</a></li>
-					</ul>
-				</li>
-				<li><a href="lancar_horas.html">Lançar Horas</a></li>
-				<li><a href="#">Sair</a></li>
-			</ul>
-			<!-- Left Nav Section -->
-			<ul class="left">
-			</ul>
-		</section>
-	</nav>
 
-	<br>
+	<?php
+		require_once("menu/menu.html");
+		echo "<br>";
+
+		require_once("connect/testmysql_p.php");
+
+		$matr = $_GET['id'];
+		//echo $matr;
+
+		$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
+		$sql_diretoria = "SELECT nome_diretoria FROM usuarios JOIN diretorias ON diretoria=id_diretoria WHERE matr='$matr';";
+		$sql_permissao = "SELECT nome_permissoes FROM usuarios JOIN permissoes ON permissao=id_permissoes WHERE matr='$matr';";
+
+
+		if (isset($sql_usuario)) {	
+			$result = mysqli_query($conn, $sql_usuario);
+		}
+		
+		if (isset($sql_diretoria)) {	
+			$result2 = mysqli_query($conn, $sql_diretoria);
+		} else
+			echo 'Erro: ' . mysqli_error($conn);
+
+		while ($row = mysqli_fetch_assoc($result2)) {
+			$nome_diretoria = $row['nome_diretoria'];
+		}
+
+		if (isset($sql_permissao)) {	
+			$result3 = mysqli_query($conn, $sql_permissao);
+		} else
+			echo 'Erro: ' . mysqli_error($conn);
+
+		while ($row = mysqli_fetch_assoc($result3)) {
+			$nome_permissao = $row['nome_permissoes'];
+		}
+
+		
+
+		while ($row = mysqli_fetch_assoc($result)) {
+						
+
+	?>
 
 	<div class="row">
 		<div class="large-12 columns">
 			<div class="panel">
-				<h3 class="text-center">Ver usuário</h3>
+				<h3 class="text-center"><?php echo $row['nome']?></h3>
 				<br>
 				<div class="row">
 
 					<div class="large-8 push-2 columns">
 
 						<form>
-							<label> Nome Completo: <input type="text" id="name" value="Gabriela Brant Alves" disabled/> </label>
-							<label> Email: <input type="text" id="email" value="gabibrantalves@gmail.com" disabled/> </label>
+							<label> Nome Completo: <input type="text" id="name" value='<?php echo $row['nome']?>' disabled/> </label>
+							<label> Número matrícula: <input type="text" id="matricula" value='<?php echo $row['matr']?>' disabled /> </label>
+							<label> Email Pessoal: <input type="text" id="email" value='<?php echo $row['email_pessoal']?>' disabled/> </label>
+							<label> Email Profissional: <input type="text" id="email" value='<?php echo $row['email_profissional']?>' disabled/> </label>
+							<label> Ingresso na faculdade: <input type="text" id="email" value='<?php echo $row['ingresso_faculdade']?>' disabled/> </label>
 							<label>Cargo:
 								<select disabled>
-									<option value="trainee" >Trainee</option>
+									<option value="" ><?php echo $row['cargo']?></option>
 								</select>
 							</label>
-							<label>Setor:
+							<label>Diretoria:
 								<select disabled>
-									<option value="projetos">Projetos</option>
+									<option value=""><?php echo $nome_diretoria?></option>
 								</select>
 							</label>
-							<label> Número matrícula: <input type="text" id="matricula" value="2013062901" disabled /> </label>
-							<label> Senha: <input type="password" id="passw" disabled/> </label>
-							<label> Confirmar senha: <input type="password" id="confirm_passw" disabled/> </label>
+							<label>Permissão:
+								<select disabled>
+									<option value="" ><?php echo $nome_permissao?></option>
+								</select>
+							</label>
+
+							<div class="row">
+								<div class="large-12 columns text-center">
+									<a href="editar_usuario.php?id=<?php echo $matr?>"class="small round button">Editar usuário</a>
+								</div>
+							</div>
 						</form>
+						<?php 
+							}
+						?>
 					</div>
 				</div>
 

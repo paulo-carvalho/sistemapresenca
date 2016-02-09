@@ -3,59 +3,86 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Editar Usuário</title>
+	<title>Editar usuário</title>
 	<link rel="stylesheet" href="../css/foundation.css" />
-	<link rel="stylesheet" href="../css/menu.css" />
-
+	<script src="../js/vendor/modernizr.js"></script>
 	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
 	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
 </head>
 <body>
+
 	<?php
 		require_once("menu/menu.html");
+		echo "<br>";
+
+		require_once("connect/testmysql_p.php");
+
+		$matr = $_GET['id'];
+		//echo $matr;
+
+		$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
+		$sql_diretoria = "SELECT nome_diretoria FROM usuarios JOIN diretorias ON diretoria=id_diretoria WHERE matr='$matr';";
+
+
+		if (isset($sql_usuario)) {	
+			$result = mysqli_query($conn, $sql_usuario);
+		}
+		
+		if (isset($sql_diretoria)) {	
+			$result2 = mysqli_query($conn, $sql_diretoria);
+		} else
+			echo 'Erro: ' . mysqli_error($conn);
+
+		while ($row = mysqli_fetch_assoc($result2)) {
+			$nome_diretoria = $row['nome_diretoria'];
+		}
+
+		while ($row = mysqli_fetch_assoc($result)) {
+						
+
 	?>
 
-	<br>
-
 	<div class="row">
-		<div class="large-12 medium-10 columns">
+		<div class="large-12 columns">
 			<div class="panel">
-				<h3 class="text-center">Editar usuário</h3>
-
+				<h3 class="text-center"><?php echo $row['nome']?></h3>
 				<br>
-
 				<div class="row">
-					<div class="large-8 medium-10 large-push-2 medium-push-1 columns">
+
+					<div class="large-8 push-2 columns">
+
 						<form>
-						<label> Nome Completo: <input type="text" id="name" value="Gabriela Brant Alves"/> </label>
-						<label> Email: <input type="text" id="email" value="gabibrantalves@gmail.com"/> </label>
-						<label>Cargo:
-							<select>
-								<option value="trainee">Trainee</option>
-								<option value="diretor">Diretor</option>
-								<option value="membro">Membro</option>
-							</select>
-						</label>
-						<label>Setor:
-							<select>
-								<option value="financeiro">Financeiro</option>
-								<option value="marketing">Marketing</option>
-								<option value="presidencia">Presidência</option>
-								<option value="projetos">Projetos</option>
-								<option value="rh">Recursos Humanos</option>
-							</select>
-						</label>
-						<label> Número matrícula: <input type="text" id="matricula" value="2013062901" disabled /> </label>
-						<label> Senha: <input type="password" id="passw" disabled/> </label>
-						<label> Confirmar senha: <input type="password" id="confirm_passw" disabled/> </label>
-						<div class="row">
-							<div class="large-12 columns text-center">
-								<a href="lista_usuarios.html" class="small round button">Editar </a>
+							<label> Nome Completo: <input type="text" id="name" value='<?php echo $row['nome']?>' /> </label>
+							<label> Número matrícula: <input type="text" id="matricula" value='<?php echo $row['matr']?>' disabled/> </label>
+							<label> Email Pessoal: <input type="text" id="email" value='<?php echo $row['email_pessoal']?>' /> </label>
+							<label> Email Profissional: <input type="text" id="email" value='<?php echo $row['email_profissional']?>' /> </label>
+							<label>Cargo:
+								<select >
+									<option value="" ><?php echo $row['cargo']?></option>
+								</select>
+							</label>
+							<label>Diretoria:
+								<select >
+									<option value=""><?php echo $nome_diretoria?></option>
+								</select>
+							</label>
+
+							<br>
+							<div class="row">
+								<div class="large-12 columns text-center">
+									<button type="submit" id="editar" class="small round button">Salvar edição</button>
+									<a href="listar_usuarios.php"class="small round button">Cancelar</a>
+								</div>
 							</div>
-						</div>
+							
 						</form>
+						<?php 
+							}
+						?>
 					</div>
 				</div>
+
+
 			</div>
 		</div>
 	</div>

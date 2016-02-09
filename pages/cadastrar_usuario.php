@@ -2,68 +2,117 @@
 <?php
 	require_once("connect/testmysql_p.php");
 
-	/* PARAMETROS */
-	if(isset($_POST['name']))
-		$name = $_POST['name'];
-	else
-		$name = "";
+	$msg_erro = "";
+	$msg_sucesso = "";
 
-	if(isset($_POST['email']))
-		$email = $_POST['email'];
+	/* PARAMETROS */
+	if(isset($_POST['nome']))
+		$nome = $_POST['nome'];
 	else
-		$email = "";
+		$nome = "";
+
+	if(isset($_POST['email_pessoal']))
+		$email_pessoal = $_POST['email_pessoal'];
+	else
+		$email_pessoal = "";
+
+	if(isset($_POST['email_profissional']))
+		$email_profissional = $_POST['email_profissional'];
+	else
+		$email_profissional = "";
 
 	if(isset($_POST['cargo']))
 		$cargo = $_POST['cargo'];
 	else
 		$cargo = "";
 
-	if(isset($_POST['setor']))
-		$setor = $_POST['setor'];
+	if(isset($_POST['diretoria']))
+		$diretoria = $_POST['diretoria'];
 	else
-		$setor = "";
+		$diretoria = "";
 
-	if(isset($_POST['matricula']))
-		$matricula = substr($_POST['matricula'], 2);
+	if(isset($_POST['ingresso_faculdade']))
+		$ingresso_faculdade = $_POST['ingresso_faculdade'];
 	else
-		$matricula = "";
+		$ingresso_faculdade = "";
 
-	if(isset($_POST['passw']))
-		$passw = hash('sha256', $_POST['passw']);
+	if(isset($_POST['matr']))
+		$matr = $_POST['matr'];
 	else
-		$passw = "";
+		$matr = "";
+
+	if(isset($_POST['permissao']))
+		$permissao = $_POST['permissao'];
+	else
+		$permissao = "";
+
+	$conectado = '0';	
+	$data_criacao='0'; 
+	$data_desligamento = '0';
+
+
+	if(isset($_POST['senha']))
+		$senha = hash('sha256', $_POST['senha']);
+	else
+		$senha = "";
 
 	if(isset($_POST['confirm_passw']))
 		$confirm_passw = hash('sha256', $_POST['confirm_passw']);
 	else
 		$confirm_passw = "";
 
-	if($passw != $confirm_passw)
-		echo "SENHAS NAO COINCIDEM!";
+	$fail=FALSE; //flag para verificar se continua com o cadastro;
 
-	if($cargo == "diretor" || ($cargo == "membro" && $setor == "rh"))
-		$permissao = "admin";
-	else
-		$permissao = "comum";
+	//Verifica se existe um usuário com a mesma matrícula no banco
+	$matricula = "SELECT matr FROM usuarios;";
+	$result_matricula = mysqli_query($conn, $matricula);
+	while ($row = mysqli_fetch_assoc($result_matricula)) {
+		if($matr == $row['matr']) {
+			$fail=TRUE; 
+			$msg_erro = "Usuário já cadastrado!";;
+		}
+	}		
 
-	/* QUERY */
-	if($matricula != "")
-		$sql = "INSERT INTO usuario VALUES('".$matricula."', '".$name."', '".$email."', '".$cargo."', '".$setor."', '".$passw."', '".$permissao."')";
+
+	if ($fail != TRUE) {
+		//Se as senhas não coincidirem, exibe mensagem de erro. 
+		if($senha != $confirm_passw) {
+			$msg_erro = "Senhas não coincidem.";
+		}
+		else {	
+			$sql = "INSERT INTO usuarios (matr, nome, senha, email_pessoal, email_profissional, diretoria, cargo, permissao, conectado, ingresso_faculdade, data_criacao, data_desligamento) VALUES('".$matr."', '".$nome."', '".$senha."', '".$email_pessoal."', '".$email_profissional."', '".$diretoria."', '".$cargo."', '".$permissao."', '".$conectado."', '".$ingresso_faculdade."', '".$data_criacao."', '".$data_desligamento."');";
+		}
+	}
+		 
 
 	/* DEBUG */
 	//if(isset($sql))
 		//echo $sql;
 
 	/* OPERAÇÃO DE INSERÇÃO */
-	$msg_erro = "";
-	$msg_sucesso = "";
-	if (isset($sql))
+	if (isset($sql)) {
 		if (!mysqli_query($conn, $sql)) {
-	  		//$msg_erro = 'Erro: ' . mysqli_error($con);
-	  		$msg_erro = "Não foi possível realizar essa operação.";
+	  		$msg_erro = 'Erro: ' . mysqli_error($conn);
+	  		//$msg_erro = "Erro ao inserir no banco.";
 		} else {
 			$msg_sucesso = "Usuário cadastrado com sucesso!";
 		}
+	}
+
+	//Será usado no select das diretorias
+	$sql_diretorias = "SELECT id_diretoria, nome_diretoria FROM diretorias;";
+	if (isset($sql_diretorias)) {	
+			$diretorias = mysqli_query($conn, $sql_diretorias);
+		} else
+			echo 'Erro na query sql_diretorias';
+
+	//Será usado no select das permissões
+	$sql_permissoes = "SELECT id_permissoes, nome_permissoes FROM permissoes;";
+	if (isset($sql_permissoes)) {	
+			$permissoes = mysqli_query($conn, $sql_permissoes);
+		} else
+			echo 'Erro: na query sql_permissoes';
+
 	mysqli_close($conn);
 ?>
 
@@ -107,44 +156,63 @@
 						<form id="cadastro" name="cadastro" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" data-abide>
 							
 							<label for="name"> Nome Completo: <span style="color: red;">*</span> 
-								<input type="text" id="name" name="name" required pattern="[a-zA-Z]+" autocomplete="off" />
+								<input type="text" id="nome" name="nome"  autocomplete="off" />
 							</label>
     						<small class="error">Nome é um campo obrigatório.</small>
 
-							<label for="email"> Email: <span style="color: red;">*</span> 
-								<input type="text" id="email" name="email" required pattern="[a-zA-Z]+@[a-zA-Z]+\.[a-zA-z]+" autocomplete="off" />
+							<label for="email"> Email Pessoal: <span style="color: red;">*</span> 
+								<input type="text" id="email_pessoal" name="email_pessoal" required pattern="[a-zA-Z]+@[a-zA-Z]+\.[a-zA-z]+" autocomplete="off" />
 							</label>
-    						<small class="error">E-mail é um campo obrigatório.</small>
+    						<small class="error">E-mail Pessoal é um campo obrigatório.</small>
+
+    						<label for="email"> Email Profissional: 
+								<input type="text" id="email_profissional" name="email_profissional" required pattern="[a-zA-Z]+@[a-zA-Z]+\.[a-zA-z]+" autocomplete="off" />
+							</label>
+
+    						<label for="email"> Ingresso na faculdade: <span style="color: red;">*</span> 
+								<input type="text" id="ingresso_faculdade" name="ingresso_faculdade" autocomplete="off" />
+							</label>
+    						<small class="error">Ingresso é um campo obrigatório.</small>
 
 							<label for="cargo">Cargo: <span style="color: red;">*</span> 
 								<select name="cargo" id="cargo" required>
-									<option value="trainee">Trainee</option>
-									<option value="diretor">Diretor</option>
-									<option value="membro">Membro</option>
+									<option value="Trainee">Trainee</option>
+									<option value="Diretor">Diretor</option>
+									<option value="Membro">Membro</option>
 								</select>
 							</label>
     						<small class="error">Cargo é um campo obrigatório.</small>
 
-							<label for="diretoria">Diretoria:
+    						<label for="diretoria">Diretoria:
 								<select name="diretoria" id="diretoria">
-									<!-- puxar opções do banco e adicionar linha null-->
-									<option value="financeiro">Financeiro</option>
-									<option value="marketing">Marketing</option>
-									<option value="presidencia">Presidência</option>
-									<option value="projetos">Projetos</option>
-									<option value="rh">Recursos Humanos</option>
+    								<?php 
+		    							while ($row = mysqli_fetch_assoc($diretorias)) {		
+		    								echo("<option value='".$row['id_diretoria']."'>".$row['nome_diretoria']."</option>");		
+		    							}				
+									?> 
 								</select>
 							</label>
 
 							<hr>
 
 							<label for="matricula"> Número de matrícula: <span style="color: red;">*</span> 
-								<input type="text" name="matricula" id="matricula" required pattern="11[0-9]{10}" autocomplete="off"/>
+								<input type="text" name="matr" id="matr" autocomplete="off"/>
     						<small class="error">Número de matrícula é um campo obrigatório.</small>
 							</label>
 
+							<label for="matricula"> Permissão: <span style="color: red;">*</span> 
+								<select name="permissao" id="permissao" required>
+									<?php 
+		    							while ($row = mysqli_fetch_assoc($permissoes)) {		
+		    								echo("<option value='".$row['id_permissoes']."'>".$row['nome_permissoes']."</option>");		
+		    							}				
+									?> 
+								</select>
+							</label>
+    						<small class="error">Cargo é um campo obrigatório.</small>
+
 							<label for="passw"> Senha: <span style="color: red;">*</span> 
-								<input type="password" name="passw" id="passw" required/> 
+								<input type="password" name="senha" id="senha" required/> 
 							</label>
     						<small class="error">Senha é um campo obrigatório.</small>
 

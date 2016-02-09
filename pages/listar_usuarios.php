@@ -74,13 +74,14 @@
 									    echo "<tr>".
 											"<td>".$row['matr']."</td>".
 											"<td>".$row['nome']."</td>".
-											"<td class='text-center'><i class='fi-zoom-in'></td>".
-											"<td class='text-center'><i class='fi-page-edit'></i></td>".
-											"<td class='text-center'><i class='fi-x'></td>".
+											"<td class='text-center'><a href=ver_usuario.php?id=".$row['matr']."><i class='fi-zoom-in'></a></td>".
+											"<td class='text-center'><a href=editar_usuario.php?id=".$row['matr']."><i class='fi-page-edit'></a></td>".
+											"<td class='text-center'><a href=excluir_usuario.php?id=".$row['matr']."><i class='fi-x'></a></td>".
 										"</tr>";
 									}
 								?>
-
+									<!--<a href="teste.php"?id="<?=10;?>">teste</a> 
+									<a href='editar_usuario.php'?id='.".$row['matr']."> -->
 								
 
 							</tbody>
