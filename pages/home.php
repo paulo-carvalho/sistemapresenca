@@ -4,6 +4,9 @@
 
 	session_start();
 
+	if(!isset($_SESSION['matricula']))
+    	header("Location: ../index.php");
+
 // ALTERAR ACAO DE BATER PONTO
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		// Batendo ponto na tabela de presenca
