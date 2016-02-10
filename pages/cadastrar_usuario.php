@@ -154,23 +154,25 @@
 				<div class="row">
 					<div class="large-8 medium-10 small-12 large-push-2 medium-push-1 columns">
 						<form id="cadastro" name="cadastro" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" data-abide>
-							
-							<label for="name"> Nome Completo: <span style="color: red;">*</span> 
-								<input type="text" id="nome" name="nome"  autocomplete="off" />
-							</label>
-    						<small class="error">Nome é um campo obrigatório.</small>
+
+  							<div class="name-field">
+								<label for="name"> Nome Completo: <span style="color: red;">*</span> 
+									<input type="text" id="nome" name="nome" pattern="alpha" required autocomplete="off" />
+								</label>
+	    						<small class="error">Nome é um campo obrigatório.</small>
+	    					</div>
 
 							<label for="email"> Email Pessoal: <span style="color: red;">*</span> 
-								<input type="text" id="email_pessoal" name="email_pessoal" required pattern="[a-zA-Z]+@[a-zA-Z]+\.[a-zA-z]+" autocomplete="off" />
+								<input type="email" id="email_pessoal" name="email_pessoal" required autocomplete="off" />
 							</label>
     						<small class="error">E-mail Pessoal é um campo obrigatório.</small>
 
     						<label for="email"> Email Profissional: 
-								<input type="text" id="email_profissional" name="email_profissional" required pattern="[a-zA-Z]+@[a-zA-Z]+\.[a-zA-z]+" autocomplete="off" />
+								<input type="email" id="email_profissional" name="email_profissional" autocomplete="off" />
 							</label>
 
     						<label for="email"> Ingresso na faculdade: <span style="color: red;">*</span> 
-								<input type="text" id="ingresso_faculdade" name="ingresso_faculdade" autocomplete="off" />
+								<input type="text" id="ingresso_faculdade" name="ingresso_faculdade" required autocomplete="off" />
 							</label>
     						<small class="error">Ingresso é um campo obrigatório.</small>
 
@@ -184,7 +186,8 @@
     						<small class="error">Cargo é um campo obrigatório.</small>
 
     						<label for="diretoria">Diretoria:
-								<select name="diretoria" id="diretoria">
+								<select name="diretoria" id="diretoria" required>
+									<option value=" "> </option>
     								<?php 
 		    							while ($row = mysqli_fetch_assoc($diretorias)) {		
 		    								echo("<option value='".$row['id_diretoria']."'>".$row['nome_diretoria']."</option>");		
@@ -196,7 +199,7 @@
 							<hr>
 
 							<label for="matricula"> Número de matrícula: <span style="color: red;">*</span> 
-								<input type="text" name="matr" id="matr" autocomplete="off"/>
+								<input type="text" name="matr" id="matr" required autocomplete="off"/>
     						<small class="error">Número de matrícula é um campo obrigatório.</small>
 							</label>
 
@@ -209,7 +212,7 @@
 									?> 
 								</select>
 							</label>
-    						<small class="error">Cargo é um campo obrigatório.</small>
+    						<small class="error">Permissão é um campo obrigatório.</small>
 
 							<label for="passw"> Senha: <span style="color: red;">*</span> 
 								<input type="password" name="senha" id="senha" required/> 
@@ -217,7 +220,7 @@
     						<small class="error">Senha é um campo obrigatório.</small>
 
 							<label for="confirm_passw"> Confirmar senha: <span style="color: red;">*</span> 
-								<input type="password" name="confirm_passw" id="confirm_passw" required /> 
+								<input type="password" data-equalto="senha" name="confirm_passw" id="confirm_passw" required /> 
 							</label>
     						<small class="error">As senhas devem ser iguais.</small>
 						</div>

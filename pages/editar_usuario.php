@@ -20,9 +20,9 @@
 		$matr = $_GET['id'];
 		//echo $matr;
 
+		//DADOS FORMULÁRIO	
 		$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
 		$sql_diretoria = "SELECT nome_diretoria FROM usuarios JOIN diretorias ON diretoria=id_diretoria WHERE matr='$matr';";
-
 
 		if (isset($sql_usuario)) {	
 			$result = mysqli_query($conn, $sql_usuario);
@@ -31,7 +31,7 @@
 		if (isset($sql_diretoria)) {	
 			$result2 = mysqli_query($conn, $sql_diretoria);
 		} else
-			echo 'Erro: ' . mysqli_error($conn);
+			echo 'Erro: sql_diretoria';
 
 		while ($row = mysqli_fetch_assoc($result2)) {
 			$nome_diretoria = $row['nome_diretoria'];
@@ -51,18 +51,18 @@
 
 					<div class="large-8 push-2 columns">
 
-						<form>
-							<label> Nome Completo: <input type="text" id="name" value='<?php echo $row['nome']?>' /> </label>
+						<form id="editar" name="editar" method="post" action="salvar_edicao.php" data-abide>
+							<label> Nome Completo: <input type="text" id="nome" value='<?php echo $row['nome']?>' /> </label>
 							<label> Número matrícula: <input type="text" id="matricula" value='<?php echo $row['matr']?>' disabled/> </label>
-							<label> Email Pessoal: <input type="text" id="email" value='<?php echo $row['email_pessoal']?>' /> </label>
-							<label> Email Profissional: <input type="text" id="email" value='<?php echo $row['email_profissional']?>' /> </label>
+							<label> Email Pessoal: <input type="text" id="email_pessoal" value='<?php echo $row['email_pessoal']?>' /> </label>
+							<label> Email Profissional: <input type="text" id="email_profissional" value='<?php echo $row['email_profissional']?>' /> </label>
 							<label>Cargo:
-								<select >
+								<select id="cargo">
 									<option value="" ><?php echo $row['cargo']?></option>
 								</select>
 							</label>
 							<label>Diretoria:
-								<select >
+								<select id="diretoria">
 									<option value=""><?php echo $nome_diretoria?></option>
 								</select>
 							</label>
@@ -70,8 +70,8 @@
 							<br>
 							<div class="row">
 								<div class="large-12 columns text-center">
-									<button type="submit" id="editar" class="small round button">Salvar edição</button>
-									<a href="listar_usuarios.php"class="small round button">Cancelar</a>
+									<button type="submit" id="salvar_edicao" class="small round button">Salvar edição</button>
+									<a href="listar_usuarios.php" class="small round button">Cancelar</a>
 								</div>
 							</div>
 							

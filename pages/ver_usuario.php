@@ -84,7 +84,7 @@
 									<option value="" ><?php echo $nome_permissao?></option>
 								</select>
 							</label>
-
+							<br>
 							<div class="row">
 								<div class="large-12 columns text-center">
 									<a href="editar_usuario.php?id=<?php echo $matr?>"class="small round button">Editar usuário</a>
