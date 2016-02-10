@@ -17,18 +17,21 @@
 	$presenca = array("data" => array(),
 					"entrada" => array());
 	// alinhar variaveis de resultados com ordem
-	$stmt->bind_result($presenca['data'], $presenca['entrada']);
+	$stmt->bind_result($presenca_data, $presenca_entrada);
 
 	$data_inicio = new DateTime("0000-00-00 00:00:00");
 	$data_fim = "";
 	// definindo valores por linha encontrada no select
 	for($i=0; $stmt->fetch(); $i++) {
-		$data_fim = new DateTime($presenca['data']);
+	    array_push($presenca['entrada'], $presenca_data);
+	    array_push($presenca['data'], $presenca_entrada);
+
+		$data_fim = date_create_from_format('Y-m-d H:i:s', $presenca['data'][$i]);
 		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
 		if($i > 0)
-			// if(($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1)
-	    		echo date_diff($data_inicio, $data_fim)->format('%h:%i:%s');
-		$data_inicio = $data_fim;
+	    	echo date_diff($data_inicio, $data_fim)->format('%h:%i:%s');
+		$data_inicio = date_create_from_format('Y-m-d H:i:s', $data_fim);
+		var_dump($i, $data_inicio);
 	}
 
 // RECONHECER NOME DE USUARIO
@@ -100,7 +103,7 @@
 							<br>
 							<div class="row">
 								<div class="large-12 columns">
-									<div id="chart_div"></div>
+									<div id="grafico">Criando gráfico, aguarde...</div>
 								</div>
 							</div>
 							<br><br>
@@ -199,10 +202,9 @@
 			};
 
 			// Instantiate and draw our chart, passing in some options.
-			var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+			var chart = new google.visualization.ComboChart(document.getElementById('grafico'));
 			chart.draw(data, options);
 		}
     </script>
-
 </body>
 </html>
