@@ -19,19 +19,19 @@
 	// alinhar variaveis de resultados com ordem
 	$stmt->bind_result($presenca_data, $presenca_entrada);
 
-	$data_inicio = new DateTime("0000-00-00 00:00:00");
-	$data_fim = "";
+	$data_inicio = new DateTime();
+	$data_fim = new DateTime();
 	// definindo valores por linha encontrada no select
 	for($i=0; $stmt->fetch(); $i++) {
-	    array_push($presenca['entrada'], $presenca_data);
-	    array_push($presenca['data'], $presenca_entrada);
+	    array_push($presenca['data'], $presenca_data);
+	    array_push($presenca['entrada'], $presenca_entrada);
 
-		$data_fim = date_create_from_format('Y-m-d H:i:s', $presenca['data'][$i]);
+		$data_fim = new DateTime($presenca['data'][$i]);
 		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
-		if($i > 0)
+		if($i > 0 && ($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1)
 	    	echo date_diff($data_inicio, $data_fim)->format('%h:%i:%s');
-		$data_inicio = date_create_from_format('Y-m-d H:i:s', $data_fim);
-		var_dump($i, $data_inicio);
+
+		$data_inicio = clone $data_fim;
 	}
 
 // RECONHECER NOME DE USUARIO
@@ -51,7 +51,12 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Relatório de Presença Pessoal</title>
+	<!-- Foundation CSS -->
 	<link rel="stylesheet" href="../css/foundation.css" />
+	<!-- Foundation Icons CSS -->
+    <link rel="stylesheet" href="../foundation-icons/foundation-icons.css" />
+	<!-- Foundation-datepicker CSS -->
+	<link rel="stylesheet" href="../css/foundation-datepicker.min.css" />
 	<script src="../js/vendor/modernizr.js"></script>
 	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
 	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
@@ -80,11 +85,11 @@
 
 							<div class="row">
 								<div class="large-4 columns">
-									<label> Data início: </label> <input type="text" id="data_inicio" placeholder="DD/MM/AAAA"/>
+									<label> Data início: </label> <input type="text" id="data_inicio" placeholder="DD/MM/AAAA" class="fdatepicker" />
 								</div>
 
 								<div class="large-4 columns">
-									<label> Data fim: </label> <input type="text" id="data_fim" placeholder="DD/MM/AAAA"/>
+									<label> Data fim: </label> <input type="text" id="data_fim" placeholder="DD/MM/AAAA" class="fdatepicker" />
 								</div>
 
 								<div class="large-4 columns ">
@@ -166,10 +171,21 @@
 	<script src="../js/vendor/jquery.js"></script>
 	<script src="../js/foundation/foundation.js"></script>
 	<script src="../js/foundation/foundation.topbar.js"></script>
+	<script type="text/javascript">
+		$(document).foundation();
+	</script>
+	<!-- Datepicker para campos com data. Repositorio: https://github.com/najlepsiwebdesigner/foundation-datepicker -->
+	<script src="../js/foundation-datepicker/foundation-datepicker.min.js"></script>
+	<script src="../js/foundation-datepicker/locales/foundation-datepicker.pt-br.js"></script>
+	<script type="text/javascript">
+	$('.fdatepicker').fdatepicker({
+		language: 'pt-br', //versao brasileira de foundation-datepicker
+		format: 'dd/mm/yyyy'
+	});
+	</script>
 	<!-- Carrega AJAX API para Google Charts-->
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript">
-		$(document).foundation();
 
 		// Load the Visualization API and the piechart package.
 		google.charts.load('current', {packages: ['corechart'], 'language': 'pt-br'});
