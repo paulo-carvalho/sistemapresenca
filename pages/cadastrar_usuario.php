@@ -61,6 +61,27 @@
 	else
 		$confirm_passw = "";
 
+	if(isset($_POST['horario1']))
+		$horario1 = $_POST['horario1'];
+	else
+		$horario1 = "";
+
+	if(isset($_POST['horario2']))
+		$horario2 = $_POST['horario2'];
+	else
+		$horario2 = "";
+
+	if(isset($_POST['dia_horario1']))
+		$dia_horario1 = $_POST['dia_horario1'];
+	else
+		$dia_horario1 = "";
+
+	if(isset($_POST['dia_horario2']))
+		$dia_horario2 = $_POST['dia_horario2'];
+	else
+		$dia_horario2 = "";
+
+
 	$fail=FALSE; //flag para verificar se continua com o cadastro;
 
 	//Verifica se existe um usuário com a mesma matrícula no banco
@@ -73,28 +94,34 @@
 		}
 	}		
 
-
 	if ($fail != TRUE) {
 		//Se as senhas não coincidirem, exibe mensagem de erro. 
 		if($senha != $confirm_passw) {
 			$msg_erro = "Senhas não coincidem.";
 		}
 		else {	
-			$sql = "INSERT INTO usuarios (matr, nome, senha, email_pessoal, email_profissional, diretoria, cargo, permissao, conectado, ingresso_faculdade, data_criacao, data_desligamento) VALUES('".$matr."', '".$nome."', '".$senha."', '".$email_pessoal."', '".$email_profissional."', '".$diretoria."', '".$cargo."', '".$permissao."', '".$conectado."', '".$ingresso_faculdade."', '".$data_criacao."', '".$data_desligamento."');";
+			$sql_usuarios = "INSERT INTO usuarios (matr, nome, senha, email_pessoal, email_profissional, diretoria, cargo, permissao, conectado, ingresso_faculdade, data_criacao, data_desligamento) VALUES('".$matr."', '".$nome."', '".$senha."', '".$email_pessoal."', '".$email_profissional."', '".$diretoria."', '".$cargo."', '".$permissao."', '".$conectado."', '".$ingresso_faculdade."', '".$data_criacao."', '".$data_desligamento."');";
+			$sql_horario1 = "INSERT INTO horarios (matr_usuario, dia_semana, horario, tipo) VALUES ('".$matr."', '".$dia_horario1."', '".$horario1."', 'Fixo'); ";
+			$sql_horario2 = "INSERT INTO horarios (matr_usuario, dia_semana, horario, tipo) VALUES ('".$matr."', '".$dia_horario2."', '".$horario2."', 'Fixo'); ";
 		}
 	}
 		 
 
-	/* DEBUG */
-	//if(isset($sql))
-		//echo $sql;
-
 	/* OPERAÇÃO DE INSERÇÃO */
-	if (isset($sql)) {
-		if (!mysqli_query($conn, $sql)) {
-	  		$msg_erro = 'Erro: ' . mysqli_error($conn);
-	  		//$msg_erro = "Erro ao inserir no banco.";
-		} else {
+	if (isset($sql_horario1)) {
+		if (!mysqli_query($conn, $sql_horario1)) {
+			$msg_erro = "Erro na query sql_horario1!";
+		}
+	}
+
+	if (isset($sql_horario2)) {
+		if (!mysqli_query($conn, $sql_horario2)) {
+			$msg_erro = "Erro na query sql_horario2!";
+		}
+	}
+
+	if (isset($sql_usuarios)) {
+		if (mysqli_query($conn, $sql_usuarios)) {
 			$msg_sucesso = "Usuário cadastrado com sucesso!";
 		}
 	}
@@ -125,6 +152,11 @@
 	<script src="../js/vendor/modernizr.js"></script>
 	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
 	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
+	<!-- Foundation-timepicker CSS -->
+    <link type="text/css" href="../css/bootstrap.min.css" />
+    <link type="text/css" href="../css/bootstrap-timepicker.min.css" />
+    <!-- Foundation-datepicker CSS -->
+	<link rel="stylesheet" href="../css/foundation-datepicker.min.css" />
 </head>
 <body>
 	<?php
@@ -157,7 +189,7 @@
 
   							<div class="name-field">
 								<label for="name"> Nome Completo: <span style="color: red;">*</span> 
-									<input type="text" id="nome" name="nome" pattern="alpha" required autocomplete="off" />
+									<input type="text" id="nome" name="nome" required autocomplete="off" />
 								</label>
 	    						<small class="error">Nome é um campo obrigatório.</small>
 	    					</div>
@@ -171,35 +203,51 @@
 								<input type="email" id="email_profissional" name="email_profissional" autocomplete="off" />
 							</label>
 
-    						<label for="email"> Ingresso na faculdade: <span style="color: red;">*</span> 
-								<input type="text" id="ingresso_faculdade" name="ingresso_faculdade" required autocomplete="off" />
-							</label>
-    						<small class="error">Ingresso é um campo obrigatório.</small>
+							<div class="row">
+    							<div class="large-6 columns" >
+		    						<label for="email"> Ingresso na faculdade: <span style="color: red;">*</span> 
+										<input type="text"  id="ingresso_faculdade" placeholder="Ano/Semestre" pattern="[1-2]{1}[0|9]{1}[0-9]{2}\/[1,2]{1}" title="Insira no formato 2016/1" />
+									</label>
+		    						<small class="error">Ingresso na faculdade é um campo obrigatório.</small>
 
-							<label for="cargo">Cargo: <span style="color: red;">*</span> 
-								<select name="cargo" id="cargo" required>
-									<option value="Trainee">Trainee</option>
-									<option value="Diretor">Diretor</option>
-									<option value="Membro">Membro</option>
-								</select>
-							</label>
-    						<small class="error">Cargo é um campo obrigatório.</small>
+		    					</div>
+		    					<div class="large-6 columns" >
+		    						<label for="email"> Ingresso na Empresa Júnior:
+										<input type="text" id="ingresso_faculdade" name="ingresso_faculdade" class="fdatepicker" autocomplete="off" />
+									</label>
+		    						<small class="error">Ingresso na Empresa Júnior é um campo obrigatório.</small>
+		    					</div>
+		    				</div>
 
-    						<label for="diretoria">Diretoria:
-								<select name="diretoria" id="diretoria" required>
-									<option value=" "> </option>
-    								<?php 
-		    							while ($row = mysqli_fetch_assoc($diretorias)) {		
-		    								echo("<option value='".$row['id_diretoria']."'>".$row['nome_diretoria']."</option>");		
-		    							}				
-									?> 
-								</select>
-							</label>
+    						<div class="row">
+    							<div class="large-6 columns" >
+									<label for="cargo">Cargo: <span style="color: red;">*</span> 
+										<select name="cargo" id="cargo" required>
+											<option value="Trainee">Trainee</option>
+											<option value="Diretor">Diretor</option>
+											<option value="Membro">Membro</option>
+										</select>
+									</label>
+		    						<small class="error">Cargo é um campo obrigatório.</small>
+		    					</div>
+		    					<div class="large-6 columns" >
+		    						<label for="diretoria">Diretoria:
+										<select name="diretoria" id="diretoria" required>
+											<option value=" "> </option>
+		    								<?php 
+				    							while ($row = mysqli_fetch_assoc($diretorias)) {		
+				    								echo("<option value='".$row['id_diretoria']."'>".$row['nome_diretoria']."</option>");
+				    							}				
+											?> 
+										</select>
+									</label>
+								</div>
+							</div>
 
 							<hr>
 
 							<label for="matricula"> Número de matrícula: <span style="color: red;">*</span> 
-								<input type="text" name="matr" id="matr" required autocomplete="off"/>
+								<input type="text" name="matr" id="matr" required pattern="[0-9]{10}" title="A matrículo deve possuir 10 caracteres" autocomplete="off"/>
     						<small class="error">Número de matrícula é um campo obrigatório.</small>
 							</label>
 
@@ -215,7 +263,7 @@
     						<small class="error">Permissão é um campo obrigatório.</small>
 
 							<label for="passw"> Senha: <span style="color: red;">*</span> 
-								<input type="password" name="senha" id="senha" required/> 
+								<input type="password" name="senha" id="senha" pattern=".{6,}" title="Insira seis ou mais caracteres" required/> 
 							</label>
     						<small class="error">Senha é um campo obrigatório.</small>
 
@@ -223,15 +271,65 @@
 								<input type="password" data-equalto="senha" name="confirm_passw" id="confirm_passw" required /> 
 							</label>
     						<small class="error">As senhas devem ser iguais.</small>
+
+    						<hr>
+
+    						<h4 class="text-center">Horários Presenciais Fixos</h4>
+    						<br>
+    						
+    						<div class="row">
+    							<div class="large-6 columns" >
+    								<h6 class="text-center">Horário 1</h6>
+    							</div>
+    							<div class="large-6 columns" >
+    								<h6 class="text-center">Horário 2</h6>
+    							</div>
+    						</div>
+
+    						<div class="row">
+    							<div class="large-3 columns" >
+									<select name="dia_horario1" id="dia_horario1" required>
+										<option value="Segunda">Segunda</option>
+										<option value="Terça">Terça</option>
+										<option value="Quarta">Quarta</option>
+										<option value="Quinta">Quinta</option>
+										<option value="Sexta">Sexta</option>
+									</select>
+				        		</div>
+	    						<div class="large-3 columns">
+									<div class="bootstrap-timepicker">
+				            			<input id="horario1" name="horario1" type="text" class="input-small" required>
+				            			<i class="icon-time"></i>
+				        			</div>
+				        		</div>
+				        		<div class="large-3 columns">
+									<select name="dia_horario2" id="dia_horario2" required>
+										<option value="Segunda">Segunda</option>
+										<option value="Terça">Terça</option>
+										<option value="Quarta">Quarta</option>
+										<option value="Quinta">Quinta</option>
+										<option value="Sexta">Sexta</option>
+									</select>
+				        		</div>
+				        		<div class="large-3 columns">
+									<div class="bootstrap-timepicker">
+				            			<input id="horario2" name="horario2" type="text" class="input-small" required>
+				            			<i class="icon-time"></i>
+				        			</div>
+				        		</div>
+				        	</div>
+
 						</div>
 					</div>
 
 					<br>
+
 					<div class="row">
 						<div class="large-12 columns text-center">
 							<button type="submit" id="cadastrar" class="small round button">Cadastrar</button>
 						</div>
 					</div>
+
 				</form>
 			</div>
 		</div>
@@ -249,6 +347,36 @@
 		$('.close').click(function() {
 			$(this).parent().fadeOut(500);
 		});
+	</script>
+	<script type="text/javascript">
+		$(document).foundation();
+	</script>
+	<!-- Timepicker. Fonte: http://jdewit.github.io/bootstrap-timepicker/ -->
+    <script type="text/javascript" src="../js/bootstrap-timepicker/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap-timepicker/bootstrap-timepicker.min.js"></script>
+	 <script type="text/javascript">
+	        $('#horario1').timepicker({
+	            template: false,
+	            showInputs: false,
+	            minuteStep: 10,
+	            showMeridian: false
+	        });
+
+	        $('#horario2').timepicker({
+	            template: false,
+	            showInputs: false,
+	            minuteStep: 10,
+	            showMeridian: false
+	        });
+	  </script>
+	<!-- Datepicker para campos com data. Repositorio: https://github.com/najlepsiwebdesigner/foundation-datepicker -->
+	<script src="../js/foundation-datepicker/foundation-datepicker.min.js"></script>
+	<script src="../js/foundation-datepicker/locales/foundation-datepicker.pt-br.js"></script>
+	<script type="text/javascript">
+	$('.fdatepicker').fdatepicker({
+		language: 'pt-br', //versao brasileira de foundation-datepicker
+		format: 'dd/mm/yyyy'
+	});
 	</script>
 </body>
 </html>
