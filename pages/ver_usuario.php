@@ -64,26 +64,36 @@
 					<div class="large-8 push-2 columns">
 
 						<form>
+							<label class="fn"><strong> Número matrícula: </strong><input type="text" id="matricula" value='<?php echo $row['matr']?>' disabled /> </label> 
 							<label> Nome Completo: <input type="text" id="name" value='<?php echo $row['nome']?>' disabled/> </label>
-							<label> Número matrícula: <input type="text" id="matricula" value='<?php echo $row['matr']?>' disabled /> </label>
 							<label> Email Pessoal: <input type="text" id="email" value='<?php echo $row['email_pessoal']?>' disabled/> </label>
 							<label> Email Profissional: <input type="text" id="email" value='<?php echo $row['email_profissional']?>' disabled/> </label>
-							<label> Ingresso na faculdade: <input type="text" id="email" value='<?php echo $row['ingresso_faculdade']?>' disabled/> </label>
-							<label>Cargo:
-								<select disabled>
-									<option value="" ><?php echo $row['cargo']?></option>
-								</select>
-							</label>
-							<label>Diretoria:
-								<select disabled>
-									<option value=""><?php echo $nome_diretoria?></option>
-								</select>
-							</label>
-							<label>Permissão:
-								<select disabled>
-									<option value="" ><?php echo $nome_permissao?></option>
-								</select>
-							</label>
+							
+							<div class="row">
+    							<div class="large-6 columns" >
+		    						<label> Ingresso na faculdade: <input type="text" value='<?php echo $row['ingresso_faculdade']?>' disabled/></label>
+		    					</div>
+		    					<div class="large-6 columns" >
+		    						<label> Ingresso na Empresa Júnior: <input type="text" value='<?php echo $row['ingresso_empresa']?>' disabled/> </label>
+		    					</div>
+		    				</div>
+
+		    				<div class="row">
+    							<div class="large-6 columns" >
+									<label>Cargo: 
+										<select disabled>
+											<option value="" ><?php echo $row['cargo']?></option>
+										</select>
+									</label>
+		    					</div>
+		    					<div class="large-6 columns" >
+		    						<label >Diretoria:
+										<select disabled>
+											<option value=""><?php echo $nome_diretoria?></option>
+										</select>
+									</label>
+								</div>
+							</div>
 							<br>
 							<div class="row">
 								<div class="large-12 columns text-center">
