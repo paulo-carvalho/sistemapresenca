@@ -2,45 +2,84 @@
 <?php
 	require_once("connect/testmysql_p.php");
 
+	session_start();
+
+	if(!isset($_SESSION['matricula']))
+    	header("Location: ../index.php");
+    else
+    	$matr = $_SESSION['matricula'];
+
 	$msg_erro = "";
 	$msg_sucesso = "";
 
 	/* PARAMETROS */
-	if(isset($_POST['horario1']))
-		$horario1 = $_POST['horario1'];
-	else
-		$horario1 = "";
+	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+		if(isset($_POST['horario1']))
+			$horario1 = $_POST['horario1'];
+		else
+			$horario1 = "";
 
-	if(isset($_POST['horario2']))
-		$horario2 = $_POST['horario2'];
-	else
-		$horario2 = "";
+		if(isset($_POST['horario2']))
+			$horario2 = $_POST['horario2'];
+		else
+			$horario2 = "";
 
-	if(isset($_POST['dia_horario1']))
-		$dia_horario1 = $_POST['dia_horario1'];
-	else
-		$dia_horario1 = "";
+		if(isset($_POST['dia_horario1']))
+			$dia_horario1 = $_POST['dia_horario1'];
+		else
+			$dia_horario1 = "";
 
-	if(isset($_POST['dia_horario2']))
-		$dia_horario2 = $_POST['dia_horario2'];
-	else
-		$dia_horario2 = "";
+		if(isset($_POST['dia_horario2']))
+			$dia_horario2 = $_POST['dia_horario2'];
+		else
+			$dia_horario2 = "";
 
-	$sql_horario1 = "INSERT INTO horarios (matr_usuario, dia_semana, horario, tipo) VALUES ('".$matr."', '".$dia_horario1."', '".$horario1."', 'Fixo'); ";
-	$sql_horario2 = "INSERT INTO horarios (matr_usuario, dia_semana, horario, tipo) VALUES ('".$matr."', '".$dia_horario2."', '".$horario2."', 'Fixo'); ";
-		 
+		$sql_verifica = "SELECT * FROM horarios WHERE matr_usuario=$matr;";
 
-	/* OPERAÇÃO DE INSERÇÃO */
-	if (isset($sql_horario1)) {
-		if (!mysqli_query($conn, $sql_horario1)) {
-			$msg_erro = "Erro na query sql_horario1!";
+
+		if (isset($sql_verifica)) {
+			$result_sql_verifica = mysqli_query($conn, $sql_verifica);
 		}
-	}
 
-	if (isset($sql_horario2)) {
-		if (!mysqli_query($conn, $sql_horario2)) {
-			$msg_erro = "Erro na query sql_horario2!";
+		$count = mysqli_num_rows($result_sql_verifica);
+
+		//Se não houverem registros na tabela horários para esse usuário, insere novos dados. 
+		if($count == 0) {
+			$sql_horario1 = "INSERT INTO horarios (matr_usuario, dia_semana, horario, tipo) VALUES ('".$matr."', '".$dia_horario1."', '".$horario1."', 'Fixo'); ";
+			$sql_horario2 = "INSERT INTO horarios (matr_usuario, dia_semana, horario, tipo) VALUES ('".$matr."', '".$dia_horario2."', '".$horario2."', 'Fixo'); ";
+
+			/* OPERAÇÃO DE INSERÇÃO */
+			if (isset($sql_horario1) && isset($sql_horario2)) {
+				if (mysqli_query($conn, $sql_horario1) && mysqli_query($conn, $sql_horario2)) {
+					$msg_sucesso = "Horários Fixos Atualizados!";
+				}
+				else
+					$msg_erro = "Erro ao atualizar os horários!";
+			}
 		}
+	
+		else if($count == 2) {
+			//$arr = array("foo" => "bar", 12 => true);
+			$horarios = array();
+			for($i=1; $i<=$count; $i++) {
+				$row = mysqli_fetch_assoc($result_sql_verifica);
+				$horarios[$i] = $row['id_horario'];
+			}
+
+			$sql_horario1 = "UPDATE horarios SET id_horario=$horarios[1], matr_usuario=$matr, dia_semana='$dia_horario1', horario='$horario1', tipo='Fixo' WHERE id_horario=$horarios[1]; ";
+			$sql_horario2 = "UPDATE horarios SET id_horario='$horarios[2]', matr_usuario=$matr, dia_semana='$dia_horario2', horario='$horario2', tipo='Fixo' WHERE id_horario=$horarios[2]; ";
+
+			/*OPERAÇÃO DE ATUALIZAÇÃO */
+			if (isset($sql_horario1) && isset($sql_horario2)) {
+				if (mysqli_query($conn, $sql_horario1) && mysqli_query($conn, $sql_horario2)) {
+					$msg_sucesso = "Horários Fixos Atualizados!";
+				}
+				else
+					//$msg_erro = "Erro ao atualizar os horários!";
+					$msg_erro = 'Erro: ' . mysqli_error($conn);
+			}
+		}
+		
 	}
 
 	mysqli_close($conn);
@@ -86,7 +125,7 @@
 				<br>
 				<div class="row">
 					<div class="large-8 medium-10 small-12 large-push-2 medium-push-1 columns">
-						<form id="cadastro" name="cadastro" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" data-abide>
+						<form id="cadastro" name="cadastro" method="post" action="<?php echo $_SERVER['PHP_SELF'];?>" data-abide>
 	   						<h4 class="text-center">Horários Presenciais Fixos</h4>
     						<br>
     						
@@ -139,7 +178,7 @@
 
 					<div class="row">
 						<div class="large-12 columns text-center">
-							<button type="submit" id="cadastrar" class="small round button">Inserir</button>
+							<button type="submit" id="cadastrar" class="small round button">Atualizar</button>
 						</div>
 					</div>
 
