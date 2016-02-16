@@ -4,11 +4,34 @@
 
 	session_start();
 
-// LISTAR PRESENCA DO USUARIO
-	//montando esqueleto da sentenca preparada
-	$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=?;");
-	// definir dependencias da query preparada
-	$stmt->bind_param("s", $matricula);
+	if(!isset($_SESSION['matricula']))
+    	header("Location: ../index.php");
+
+// FILTRAR PERIODO DE CONSULTA DO RELATORIO
+	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+		$relatorioDataInicio = (isset($_POST['relatorioDataInicio'])) ? $_POST['relatorioDataInicio'] : '';
+		$relatorioDataFim = (isset($_POST['relatorioDataFim'])) ? $_POST['relatorioDataFim'] : '';
+
+		var_dump($_POST['relatorioDataFim']);
+
+		if($relatorioDataFim == '') {
+			$relatorioDataFim = new DateTime();
+			$relatorioDataFim = $relatorioDataFim->format('Y-m-d');
+		}
+		if($relatorioDataInicio == '')
+			$relatorioDataInicio = '2016-01-01';
+
+		//montando esqueleto da sentenca
+		$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=? AND `data` BETWEEN ? AND ?;");
+		$stmt->bind_param("sss", $matricula, $relatorioDataInicio, $relatorioDataFim);
+
+	} else {
+	// LISTAR PRESENCA DO USUARIO
+		//montando esqueleto da sentenca
+		$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=?;");
+		// definir dependencias da query preparada
+		$stmt->bind_param("s", $matricula);
+	}
 
 	$matricula = $_SESSION['matricula'];
 	$stmt->execute();
@@ -76,91 +99,96 @@
 				<br>
 				<div class="row">
 					<div class="large-8 medium-10 large-push-2 medium-push-1 columns">
-						<form>
-							<div class="text-center">
-								<h4><?php echo $nomeUsuario; ?></h4>
-								<h5><?php echo $_SESSION['matricula'];?></h5>
-							</div>
-							<br>
-
-							<div class="row">
-								<div class="large-4 columns">
-									<label> Data início: </label> <input type="text" id="data_inicio" placeholder="DD/MM/AAAA" class="fdatepicker" />
-								</div>
-
-								<div class="large-4 columns">
-									<label> Data fim: </label> <input type="text" id="data_fim" placeholder="DD/MM/AAAA" class="fdatepicker" />
-								</div>
-
-								<div class="large-4 columns ">
-									<br>
-									<a href="#" class="tiny button">Atualizar </a>
-								</div>
-							</div>
-
-							<br>
-							<div class="row">
-								<div class="large-12 columns text-center">
-									<a href="#" class="small round button">Imprimir relatório </a>
-								</div>
-							</div>
-
-							<br>
-							<div class="row">
-								<div class="large-12 columns">
-									<div id="grafico">Criando gráfico, aguarde...</div>
-								</div>
-							</div>
-							<br><br>
-
-							<table class="large-12 small-12 columns">
-								<thead>
-									<tr>
-										<th>Dia</th>
-										<th>Horário Entrada</th>
-										<th>Horário Saída</th>
-										<th>Horas</th>
-										<th>Tipo</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td class="text-center">04/11/2015</td>
-										<td class="text-center">16:00</td>
-										<td class="text-center">17:00</td>
-										<td class="text-center">1:00</td>
-										<td class="text-center">Presencial</td>
-									</tr>
-									<tr>
-										<td class="text-center">03/11/2015</td>
-										<td class="text-center">13:10</td>
-										<td class="text-center">15:00</td>
-										<td class="text-center">1:50</td>
-										<td class="text-center">Capacitação JavaScript</td>
-									</tr>
-									<tr>
-										<td class="text-center">01/11/2015</td>
-										<td class="text-center">16:00</td>
-										<td class="text-center">17:00</td>
-										<td class="text-center">1:00</td>
-										<td class="text-center">Presencial</td>
-									</tr>
-								</tbody>
-							</table>
-
-							<div class="row">
-								<div class="large-12 columns text-center">
-									<a href="#" class="small round button">Imprimir relatório </a>
-								</div>
-							</div>
-
+						<div class="text-center">
+							<h4><?php echo $nomeUsuario; ?></h4>
+							<h5><?php echo $_SESSION['matricula'];?></h5>
 						</div>
+						<br>
+
+						<div class="row">
+						<form name="periodoRelatorio" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
+							<?php
+								$arrInicio = explode("-" ,$relatorioDataInicio);
+								$arrFim = explode("-" ,$relatorioDataFim);
+							?>
+							<div class="large-4 columns">
+								<label> Data início: </label> <input type="text" id="relatorioDataInicio" placeholder="DD/MM/AAAA" class="fdatepicker" autocomplete="off" value="<?php echo isset($relatorioDataInicio) ? $arrInicio[2]."/".$arrInicio[1]."/".$arrInicio[0] : ''; ?>" />
+							</div>
+
+							<div class="large-4 columns">
+								<label> Data fim: </label> <input type="text" id="relatorioDataFim" placeholder="DD/MM/AAAA" class="fdatepicker" autocomplete="off" value="<?php echo isset($relatorioDataFim) ? $arrFim[2]."/".$arrFim[1]."/".$arrFim[0] : ''; ?>" />
+							</div>
+
+							<div class="large-4 columns ">
+								<br>
+								<button class="tiny button" name="Atualizar" type="submit">Atualizar</button>
+							</div>
+						</form>
+						</div>
+
+						<br>
+
+						<div class="row">
+							<div class="large-12 columns text-center">
+								<a href="#" class="small round button">Imprimir relatório </a>
+							</div>
+						</div>
+
+						<br>
+
+						<div class="row">
+							<div class="large-12 columns">
+								<div id="grafico">Criando gráfico, aguarde...</div>
+							</div>
+						</div>
+
+						<br><br>
+
+						<table class="large-12 small-12 columns">
+							<thead>
+								<tr>
+									<th>Dia</th>
+									<th>Horário Entrada</th>
+									<th>Horário Saída</th>
+									<th>Horas</th>
+									<th>Tipo</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="text-center">04/11/2015</td>
+									<td class="text-center">16:00</td>
+									<td class="text-center">17:00</td>
+									<td class="text-center">1:00</td>
+									<td class="text-center">Presencial</td>
+								</tr>
+								<tr>
+									<td class="text-center">03/11/2015</td>
+									<td class="text-center">13:10</td>
+									<td class="text-center">15:00</td>
+									<td class="text-center">1:50</td>
+									<td class="text-center">Capacitação JavaScript</td>
+								</tr>
+								<tr>
+									<td class="text-center">01/11/2015</td>
+									<td class="text-center">16:00</td>
+									<td class="text-center">17:00</td>
+									<td class="text-center">1:00</td>
+									<td class="text-center">Presencial</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<div class="row">
+							<div class="large-12 columns text-center">
+								<a href="#" class="small round button">Imprimir relatório </a>
+							</div>
+						</div>
+
 					</div>
 				</div>
-
-				<br>
-
-			</form>
+			</div>
+			<br>
 		</div>
 	</div>
 </div>
