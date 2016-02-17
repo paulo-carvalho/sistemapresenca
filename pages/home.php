@@ -64,7 +64,7 @@
 	$stmt->fetch();
 
 	$stmt->close();
- 	$conn->close();
+ 	//$conn->close();
 ?>
 <html class="no-js" lang="en">
 <head>
@@ -79,7 +79,7 @@
 </head>
 <body>
 	<?php
-		require_once("menu/menu.html");
+		require_once("menu/menu.php");
 	?>
 
 	<br>
@@ -174,7 +174,6 @@
 
 			<a class="close-reveal-modal" aria-label="Close">&#215;</a>
 		</div>
-
 		<script src="../js/vendor/modernizr.js"></script>
 		<script src="../js/vendor/jquery.js"></script>
 		<script src="../js/foundation/foundation.js"></script>
@@ -189,4 +188,8 @@
 			});
 		</script>
 	</body>
+	
+<?php 
+	$conn->close();
+?>
 	</html>

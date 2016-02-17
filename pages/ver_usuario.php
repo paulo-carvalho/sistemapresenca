@@ -1,3 +1,64 @@
+<?php
+	require_once("connect/testmysql_p.php");
+
+	//VALIDA A SESSÃO
+	session_start();
+
+	if(!isset($_SESSION['matricula'])) {
+    	header("Location: ../index.php");
+	}
+	else {
+		$matricula = $_SESSION['matricula'];
+	}
+
+	//Seleciona a permissão do usuário logado na página
+	$sql_controle = "SELECT permissao FROM usuarios WHERE matr=$matricula;";
+	if (isset($sql_controle)) {
+		$controle = mysqli_query($conn, $sql_controle);
+	}
+	//Armazena o resultado da query acima no array permissao_sessao.
+	//O valor fica armazenado na posição permissao_sessao[0]
+	$permissao_sessao = mysqli_fetch_row($controle);
+	
+	if($permissao_sessao[0] == 3) { //Se o usuário for pós-júnior, não tem acesso ao sistema
+		header("Location: ../index.php");
+	}
+
+	$matr = $_GET['id'];
+	//echo $matr;
+
+	$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
+	$sql_diretoria = "SELECT nome_diretoria FROM usuarios JOIN diretorias ON diretoria=id_diretoria WHERE matr='$matr';";
+	$sql_permissao = "SELECT nome_permissoes FROM usuarios JOIN permissoes ON permissao=id_permissoes WHERE matr='$matr';";
+
+
+	if (isset($sql_usuario)) {	
+		$result = mysqli_query($conn, $sql_usuario);
+	}
+	
+	if (isset($sql_diretoria)) {	
+		$result2 = mysqli_query($conn, $sql_diretoria);
+	} else
+		echo 'Erro: ' . mysqli_error($conn);
+
+	while ($row = mysqli_fetch_assoc($result2)) {
+		$nome_diretoria = $row['nome_diretoria'];
+	}
+
+	if (isset($sql_permissao)) {	
+		$result3 = mysqli_query($conn, $sql_permissao);
+	} else
+		echo 'Erro: ' . mysqli_error($conn);
+
+	while ($row = mysqli_fetch_assoc($result3)) {
+		$nome_permissao = $row['nome_permissoes'];
+	}
+
+	while ($row = mysqli_fetch_assoc($result)) {
+					
+
+?>
+
 <!doctype html>
 <html class="no-js" lang="en">
 <head>
@@ -10,48 +71,9 @@
 	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
 </head>
 <body>
-
 	<?php
-		require_once("menu/menu.html");
+		require_once("menu/menu.php");
 		echo "<br>";
-
-		require_once("connect/testmysql_p.php");
-
-		$matr = $_GET['id'];
-		//echo $matr;
-
-		$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
-		$sql_diretoria = "SELECT nome_diretoria FROM usuarios JOIN diretorias ON diretoria=id_diretoria WHERE matr='$matr';";
-		$sql_permissao = "SELECT nome_permissoes FROM usuarios JOIN permissoes ON permissao=id_permissoes WHERE matr='$matr';";
-
-
-		if (isset($sql_usuario)) {	
-			$result = mysqli_query($conn, $sql_usuario);
-		}
-		
-		if (isset($sql_diretoria)) {	
-			$result2 = mysqli_query($conn, $sql_diretoria);
-		} else
-			echo 'Erro: ' . mysqli_error($conn);
-
-		while ($row = mysqli_fetch_assoc($result2)) {
-			$nome_diretoria = $row['nome_diretoria'];
-		}
-
-		if (isset($sql_permissao)) {	
-			$result3 = mysqli_query($conn, $sql_permissao);
-		} else
-			echo 'Erro: ' . mysqli_error($conn);
-
-		while ($row = mysqli_fetch_assoc($result3)) {
-			$nome_permissao = $row['nome_permissoes'];
-		}
-
-		
-
-		while ($row = mysqli_fetch_assoc($result)) {
-						
-
 	?>
 
 	<div class="row">
@@ -95,11 +117,19 @@
 								</div>
 							</div>
 							<br>
-							<div class="row">
-								<div class="large-12 columns text-center">
-									<a href="editar_usuario.php?id=<?php echo $matr?>"class="small round button">Editar usuário</a>
-								</div>
-							</div>
+
+							<?php
+									//Apenas o administrador pode Editar o usuário
+									if($permissao_sessao[0] == 1) {
+								?>
+										<div class="row">
+											<div class="large-12 columns text-center">
+												<a href="editar_usuario.php?id=<?php echo $matr?>"class="small round button">Editar usuário</a>
+											</div>
+										</div>
+								<?php
+									}
+								?>
 						</form>
 						<?php 
 							}
@@ -122,4 +152,8 @@
 		$(document).foundation();
 	</script>
 </body>
+<?php
+	//Encerra a conexão com o banco
+	mysqli_close($conn);
+?>
 </html>

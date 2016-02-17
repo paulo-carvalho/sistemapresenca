@@ -1,3 +1,17 @@
+<?php
+	require_once("connect/testmysql_p.php");
+
+	$msg_erro = "";
+	$msg_sucesso = "";
+
+	//VALIDA A SESSÃO
+	session_start();
+
+	if(!isset($_SESSION['matricula'])) {
+    	header("Location: ../index.php");
+	}
+?>
+
 <!doctype html>
 <html class="no-js" lang="en">
 <head>
@@ -11,7 +25,7 @@
 </head>
 <body>
 	<?php
-		require_once("menu/menu.html");
+		require_once("menu/menu.php");
 	?>
 
 	<br>
@@ -52,4 +66,8 @@
 		$(document).foundation();
 	</script>
 </body>
+<?php
+	//Encerra a conexão com o banco
+	mysqli_close($conn);
+?>
 </html>

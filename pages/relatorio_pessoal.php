@@ -77,7 +77,6 @@
 	$stmt->fetch();
 
 	$stmt->close();
- 	$conn->close();
 ?>
 <html class="no-js" lang="en">
 <head>
@@ -97,7 +96,7 @@
 
 <body>
 	<?php
-		require_once("menu/menu.html");
+		require_once("menu/menu.php");
 	?>
 
 	<br>
@@ -267,4 +266,7 @@
 		}
     </script>
 </body>
+<?php
+	$conn->close();
+?>
 </html>

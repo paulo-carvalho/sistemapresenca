@@ -2,12 +2,31 @@
 <?php
 	require_once("connect/testmysql_p.php");
 
+	//VALIDA A SESSÃO
+	session_start();
+
+	if(!isset($_SESSION['matricula'])) {
+    	header("Location: ../index.php");
+	}
+	else {
+		$matricula = $_SESSION['matricula'];
+	}
+
+	//Seleciona a permissão do usuário logado na página
+	$sql_controle = "SELECT permissao FROM usuarios WHERE matr=$matricula;";
+	if (isset($sql_controle)) {
+		$controle = mysqli_query($conn, $sql_controle);
+	}
+	//Armazena o resultado da query acima no array permissao_sessao.
+	//O valor fica armazenado na posição permissao_sessao[0]
+	$permissao_sessao = mysqli_fetch_row($controle);
+	
+	if($permissao_sessao[0] == 3) { //Se o usuário for pós-júnior, não tem acesso ao sistema
+		header("Location: ../index.php");
+	} 
+
 	/* QUERY */
 	$sql = "SELECT matr, nome FROM usuarios WHERE permissao='3' ORDER BY nome ASC";
-
-	/* DEBUG */
-	//if(isset($sql))
-	//	echo $sql;
 
 	/* OPERAÇÃO DE CONSULTA */
 	$msg_erro = "";
@@ -36,7 +55,7 @@
 </head>
 <body>
 	<?php
-		require_once("menu/menu.html");
+		require_once("menu/menu.php");
 	?>
 
 	<br>
@@ -68,7 +87,15 @@
 									<th>Matrícula</th>
 									<th>Nome</th>
 									<th class="text-center">Ver</th>
-									<th class="text-center">Ativar</th>
+									<?php
+										//Apenas administrador poderá Ativar os usuários pós-juniores
+										if($permissao_sessao[0] == 1) {
+									?>
+											<th class="text-center">Ativar</th>
+									<?php
+										}
+									?>
+									
 								</tr>
 							</thead>
 							
@@ -82,7 +109,15 @@
 											<td> <?php echo $row['matr'] ?></td>
 											<td> <?php echo $row['nome'] ?></td>
 											<td class="text-center"><a href="ver_usuario.php?id=<?php echo $row['matr']?>"><i class="fi-zoom-in"></a></td>
-											<td class="text-center"><a href="modal_ativar_usuario.php?id=<?php echo $row['matr']?>" data-reveal-id="ativar_usuario" data-reveal-ajax="true"><i class="fi-check"></a></td>
+											<?php
+												//Apenas o administrador pode Editar e Desativar os usuários
+												if($permissao_sessao[0] == 1) {
+											?>
+												<td class="text-center"><a href="modal_ativar_usuario.php?id=<?php echo $row['matr']?>" data-reveal-id="ativar_usuario" data-reveal-ajax="true"><i class="fi-check"></a></td>
+											<?php
+												}
+											?>
+			
 										</tr>
 								<?php	
 									}

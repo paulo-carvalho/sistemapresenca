@@ -1,7 +1,9 @@
 <?php
-				
-	//require_once("connect/testmysql_p.php");
 	require_once("listar_pos_juniores.php");
+
+	if(!isset($_SESSION['matricula'])) {
+    	header("Location: ../index.php");
+	}
 
 	$ativar="";
 	$matr="";
@@ -30,7 +32,6 @@
 		}
 	}
 	mysqli_close($conn);
-	//unset($conn);
 ?>
 
 

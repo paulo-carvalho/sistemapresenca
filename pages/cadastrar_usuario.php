@@ -1,117 +1,143 @@
-<!doctype html>
 <?php
 	require_once("connect/testmysql_p.php");
 
 	$msg_erro = "";
 	$msg_sucesso = "";
 
-	/* PARAMETROS */
-	if(isset($_POST['nome']))
-		$nome = $_POST['nome'];
-	else
-		$nome = "";
+	//VALIDA A SESSÃO
+	session_start();
 
-	if(isset($_POST['email_pessoal']))
-		$email_pessoal = $_POST['email_pessoal'];
-	else
-		$email_pessoal = "";
-
-	if(isset($_POST['email_profissional']))
-		$email_profissional = $_POST['email_profissional'];
-	else
-		$email_profissional = "";
-
-	if(isset($_POST['cargo']))
-		$cargo = $_POST['cargo'];
-	else
-		$cargo = "";
-
-	if(isset($_POST['diretoria']))
-		$diretoria = $_POST['diretoria'];
-	else
-		$diretoria = "";
-
-	if(isset($_POST['ingresso_faculdade']))
-		$ingresso_faculdade = $_POST['ingresso_faculdade'];
-	else
-		$ingresso_faculdade = "";
-
-	if(isset($_POST['ingresso_empresa']))
-		$ingresso_empresa = $_POST['ingresso_empresa'];
-	else
-		$ingresso_empresa = "";
-
-	if(isset($_POST['matr']))
-		$matr = $_POST['matr'];
-	else
-		$matr = "";
-
-	if(isset($_POST['permissao']))
-		$permissao = $_POST['permissao'];
-	else
-		$permissao = "";
-
-	$conectado = '0';
-	$data_desligamento = '0';
-
-	if(isset($_POST['senha']))
-		$senha = hash('sha256', $_POST['senha']);
-	else
-		$senha = "";
-
-	if(isset($_POST['confirm_passw']))
-		$confirm_passw = hash('sha256', $_POST['confirm_passw']);
-	else
-		$confirm_passw = "";
-
-
-	$fail=FALSE; //flag para verificar se continua com o cadastro;
-
-	//Verifica se existe um usuário com a mesma matrícula no banco
-	$matricula = "SELECT matr FROM usuarios;";
-	$result_matricula = mysqli_query($conn, $matricula);
-	while ($row = mysqli_fetch_assoc($result_matricula)) {
-		if($matr == $row['matr']) {
-			$fail=TRUE; 
-			$msg_erro = "Usuário já cadastrado!";;
-		}
-	}		
-
-	if ($fail != TRUE) {
-		//Se as senhas não coincidirem, exibe mensagem de erro. 
-		if($senha != $confirm_passw) {
-			$msg_erro = "Senhas não coincidem.";
-		}
-		else {	
-			$sql_cadastrar = "INSERT INTO usuarios (matr, nome, senha, email_pessoal, email_profissional, diretoria, cargo, ingresso_faculdade, ingresso_empresa, permissao, conectado, data_criacao, data_desligamento) VALUES('".$matr."', '".$nome."', '".$senha."', '".$email_pessoal."', '".$email_profissional."', '".$diretoria."', '".$cargo."', '".$ingresso_faculdade."', '".$ingresso_empresa."', '".$permissao."', '".$conectado."',   NOW() , '".$data_desligamento."');";
-		}
+	if(!isset($_SESSION['matricula'])) {
+    	header("Location: ../index.php");
 	}
-		 
-
-	/* OPERAÇÃO DE INSERÇÃO */
-	if (isset($sql_cadastrar)) {
-		if (mysqli_query($conn, $sql_cadastrar)) {
-			$msg_sucesso = "Usuário cadastrado com sucesso!";
-		}
+	else {
+		$matricula = $_SESSION['matricula'];
 	}
 
-	//Será usado no select das diretorias
+	//Seleciona a permissão do usuário logado na página
+	$sql_controle = "SELECT permissao FROM usuarios WHERE matr=$matricula;";
+	if (isset($sql_controle)) {
+		$controle = mysqli_query($conn, $sql_controle);
+	}
+	//Armazena o resultado da query acima no array permissao_sessao.
+	//O valor fica armazenado na posição permissao_sessao[0]
+	$permissao_sessao = mysqli_fetch_row($controle);
+	
+	if($permissao_sessao[0] == 3) { //Se o usuário for pós-júnior, não tem acesso ao sistema
+		header("Location: ../index.php");
+	} else if($permissao_sessao[0] != 1) { //Se o usuário não for administrador, não pode cadastrar novo usuário
+		header("Location: home.php");
+	}
+
+	/* PARAMETROS RECEBIDOS PELO FORMULÁRIO DE CADASTRO*/
+	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+		if(isset($_POST['nome']))
+			$nome = $_POST['nome'];
+		else
+			$nome = "";
+
+		if(isset($_POST['email_pessoal']))
+			$email_pessoal = $_POST['email_pessoal'];
+		else
+			$email_pessoal = "";
+
+		if(isset($_POST['email_profissional']))
+			$email_profissional = $_POST['email_profissional'];
+		else
+			$email_profissional = "";
+
+		if(isset($_POST['cargo']))
+			$cargo = $_POST['cargo'];
+		else
+			$cargo = "";
+
+		if(isset($_POST['diretoria']))
+			$diretoria = $_POST['diretoria'];
+		else
+			$diretoria = "";
+
+		if(isset($_POST['ingresso_faculdade']))
+			$ingresso_faculdade = $_POST['ingresso_faculdade'];
+		else
+			$ingresso_faculdade = "";
+
+		if(isset($_POST['ingresso_empresa']))
+			$ingresso_empresa = $_POST['ingresso_empresa'];
+		else
+			$ingresso_empresa = "";
+
+		if(isset($_POST['matr']))
+			$matr = $_POST['matr'];
+		else
+			$matr = "";
+
+		if(isset($_POST['permissao']))
+			$permissao = $_POST['permissao'];
+		else
+			$permissao = "";
+
+		$conectado = '0';
+		$data_desligamento = '0';
+
+		if(isset($_POST['senha']))
+			$senha = hash('sha256', $_POST['senha']);
+		else
+			$senha = "";
+
+		if(isset($_POST['confirm_passw']))
+			$confirm_passw = hash('sha256', $_POST['confirm_passw']);
+		else
+			$confirm_passw = "";
+
+
+		$fail=FALSE; //flag para verificar se continua com o cadastro;
+
+		//Verifica se existe um usuário com a mesma matrícula no banco
+		$matricula = "SELECT matr FROM usuarios;";
+		$result_matricula = mysqli_query($conn, $matricula);
+		while ($row = mysqli_fetch_assoc($result_matricula)) {
+			if($matr == $row['matr']) {
+				$fail=TRUE; 
+				$msg_erro = "Usuário já cadastrado!";;
+			}
+		}		
+
+		if ($fail != TRUE) {
+			//Se as senhas não coincidirem, exibe mensagem de erro. 
+			if($senha != $confirm_passw) {
+				$msg_erro = "Senhas não coincidem.";
+			}
+			else {	
+				$sql_cadastrar = "INSERT INTO usuarios (matr, nome, senha, email_pessoal, email_profissional, diretoria, cargo, ingresso_faculdade, ingresso_empresa, permissao, conectado, data_criacao, data_desligamento) VALUES('".$matr."', '".$nome."', '".$senha."', '".$email_pessoal."', '".$email_profissional."', '".$diretoria."', '".$cargo."', '".$ingresso_faculdade."', '".$ingresso_empresa."', '".$permissao."', '".$conectado."',   NOW() , '".$data_desligamento."');";
+			}
+		}
+			 
+		//Cadastra novo usuário no banco 
+		if (isset($sql_cadastrar)) {
+			if (mysqli_query($conn, $sql_cadastrar)) {
+				$msg_sucesso = "Usuário cadastrado com sucesso!";
+			}
+			else
+				$msg_erro = 'Erro: ' . mysqli_error($conn);
+		}
+	}
+
+	//Usado no <select> das diretorias
 	$sql_diretorias = "SELECT id_diretoria, nome_diretoria FROM diretorias;";
 	if (isset($sql_diretorias)) {	
 			$diretorias = mysqli_query($conn, $sql_diretorias);
 		} else
 			echo 'Erro na query sql_diretorias';
 
-	//Será usado no select das permissões
+	//Usado no <select> das permissões
 	$sql_permissoes = "SELECT id_permissoes, nome_permissoes FROM permissoes;";
 	if (isset($sql_permissoes)) {	
 			$permissoes = mysqli_query($conn, $sql_permissoes);
 		} else
 			echo 'Erro: na query sql_permissoes';
 
-	mysqli_close($conn);
 ?>
-
+<!doctype html>
 <html class="no-js" lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -128,7 +154,7 @@
 </head>
 <body>
 	<?php
-		require_once("menu/menu.html");
+		require_once("menu/menu.php");
 	?>
 
 	<br>
@@ -283,4 +309,8 @@
 	});
 	</script>
 </body>
+<?php
+	//Encerra a conexão com o banco
+	mysqli_close($conn);
+?>
 </html>

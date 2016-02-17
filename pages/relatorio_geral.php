@@ -1,3 +1,17 @@
+<?php
+	require_once("connect/testmysql_p.php");
+
+	//VALIDA A SESSÃO
+	session_start();
+
+	if(!isset($_SESSION['matricula'])) {
+    	header("Location: ../index.php");
+	}
+	else {
+		$matricula = $_SESSION['matricula'];
+	}
+?>
+
 <!doctype html>
 <html class="no-js" lang="en">
 <head>
@@ -12,7 +26,7 @@
 
 <body>
 	<?php
-		require_once("menu/menu.html");
+		require_once("menu/menu.php");
 	?>
 
 	<br>

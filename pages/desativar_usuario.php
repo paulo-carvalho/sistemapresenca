@@ -1,6 +1,9 @@
 <?php
-	//require_once("connect/testmysql_p.php");
 	require_once("listar_usuarios.php");
+
+	if(!isset($_SESSION['matricula'])) {
+    	header("Location: ../index.php");
+	}
 
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if (isset($_POST['desativar'])) 
@@ -30,6 +33,5 @@
 		}
 	}
 	mysqli_close($conn);
-	//unset($conn);
 ?>
 
