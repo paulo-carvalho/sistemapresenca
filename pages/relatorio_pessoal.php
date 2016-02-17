@@ -4,26 +4,35 @@
 
 	session_start();
 
+	// redirecionar para a pagina de login caso não esteja logado
 	if(!isset($_SESSION['matricula']))
     	header("Location: ../index.php");
 
 // FILTRAR PERIODO DE CONSULTA DO RELATORIO
+	$relatorioDataInicio = ''; //para nao dar falha ao primeiro acesso da pagina
+	$relatorioDataFim = ''; //para nao dar falha ao primeiro acesso da pagina
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$relatorioDataInicio = (isset($_POST['relatorioDataInicio'])) ? $_POST['relatorioDataInicio'] : '';
 		$relatorioDataFim = (isset($_POST['relatorioDataFim'])) ? $_POST['relatorioDataFim'] : '';
 
-		var_dump($_POST['relatorioDataFim']);
-
+		// caso o botão de atualizar seja acionado com campos vazios
 		if($relatorioDataFim == '') {
-			$relatorioDataFim = new DateTime();
-			$relatorioDataFim = $relatorioDataFim->format('Y-m-d');
+			$dataFimFormatada = new DateTime();
+			$dataFimFormatada = $dataFimFormatada->format('Y-m-d');
+		} else {
+			$arrDataFim = explode('/', $relatorioDataFim);
+			$dataFimFormatada = $arrDataFim[2].'-'.$arrDataFim[1].'-'.$arrDataFim[0];
 		}
-		if($relatorioDataInicio == '')
-			$relatorioDataInicio = '2016-01-01';
+		if($relatorioDataInicio == '') {
+			$dataInicioFormatada = '2016-01-01';
+		} else {
+			$arrDataFim = explode('/', $relatorioDataInicio);
+			$dataInicioFormatada = $arrDataFim[2].'-'.$arrDataFim[1].'-'.$arrDataFim[0];
+		}
 
 		//montando esqueleto da sentenca
 		$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=? AND `data` BETWEEN ? AND ?;");
-		$stmt->bind_param("sss", $matricula, $relatorioDataInicio, $relatorioDataFim);
+		$stmt->bind_param("sss", $matricula, $dataInicioFormatada, $dataFimFormatada);
 
 	} else {
 	// LISTAR PRESENCA DO USUARIO
@@ -44,6 +53,7 @@
 
 	$data_inicio = new DateTime();
 	$data_fim = new DateTime();
+
 	// definindo valores por linha encontrada no select
 	for($i=0; $stmt->fetch(); $i++) {
 	    array_push($presenca['data'], $presenca_data);
@@ -52,7 +62,7 @@
 		$data_fim = new DateTime($presenca['data'][$i]);
 		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
 		if($i > 0 && ($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1)
-	    	echo date_diff($data_inicio, $data_fim)->format('%h:%i:%s');
+	    	echo date_diff($data_inicio, $data_fim)->format('%H:%I:%S');
 
 		$data_inicio = clone $data_fim;
 	}
@@ -112,14 +122,20 @@
 								$arrFim = explode("-" ,$relatorioDataFim);
 							?>
 							<div class="large-4 columns">
-								<label> Data início: </label> <input type="text" id="relatorioDataInicio" placeholder="DD/MM/AAAA" class="fdatepicker" autocomplete="off" value="<?php echo isset($relatorioDataInicio) ? $arrInicio[2]."/".$arrInicio[1]."/".$arrInicio[0] : ''; ?>" />
+								<label> Data início: </label>
+								<input type="text" id="relatorioDataInicio" name="relatorioDataInicio"
+								placeholder="DD/MM/AAAA" class="fdatepicker" autocomplete="off"
+								value="<?php echo isset($relatorioDataInicio) ? $relatorioDataInicio : ''; ?>" />
 							</div>
 
 							<div class="large-4 columns">
-								<label> Data fim: </label> <input type="text" id="relatorioDataFim" placeholder="DD/MM/AAAA" class="fdatepicker" autocomplete="off" value="<?php echo isset($relatorioDataFim) ? $arrFim[2]."/".$arrFim[1]."/".$arrFim[0] : ''; ?>" />
+								<label> Data fim: </label>
+								<input type="text" id="relatorioDataFim" name="relatorioDataFim"
+								placeholder="DD/MM/AAAA" class="fdatepicker" autocomplete="off"
+								value="<?php echo isset($relatorioDataFim) ? $relatorioDataFim : ''; ?>" />
 							</div>
 
-							<div class="large-4 columns ">
+							<div class="large-4 columns">
 								<br>
 								<button class="tiny button" name="Atualizar" type="submit">Atualizar</button>
 							</div>
