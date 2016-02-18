@@ -8,9 +8,10 @@
 	if(!isset($_SESSION['matricula']))
     	header("Location: ../index.php");
 
-// FILTRAR PERIODO DE CONSULTA DO RELATORIO
 	$relatorioDataInicio = ''; //para nao dar falha ao primeiro acesso da pagina
 	$relatorioDataFim = ''; //para nao dar falha ao primeiro acesso da pagina
+
+// FILTRAR PERIODO DE CONSULTA PARA O RELATORIO DE HORAS DE TRABALHO
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$relatorioDataInicio = (isset($_POST['relatorioDataInicio'])) ? $_POST['relatorioDataInicio'] : '';
 		$relatorioDataFim = (isset($_POST['relatorioDataFim'])) ? $_POST['relatorioDataFim'] : '';
@@ -35,13 +36,14 @@
 		$stmt->bind_param("sss", $matricula, $dataInicioFormatada, $dataFimFormatada);
 
 	} else {
-	// LISTAR PRESENCA DO USUARIO
+		// ELSE: listar todas as presencas do usuario
 		//montando esqueleto da sentenca
 		$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=?;");
 		// definir dependencias da query preparada
 		$stmt->bind_param("s", $matricula);
 	}
 
+	// definindo parametro comum e executando a query
 	$matricula = $_SESSION['matricula'];
 	$stmt->execute();
 
@@ -51,11 +53,13 @@
 	// alinhar variaveis de resultados com ordem
 	$stmt->bind_result($presenca_data, $presenca_entrada);
 
+	// variaveis usadas para realizar operacoes dos intervalos de presenca
 	$data_inicio = new DateTime();
 	$data_fim = new DateTime();
 
 	// para armazenar todos os intervalos de tempo da matricula que "bateu ponto"
-	$presenca_matricula = array();
+	$presenca_matricula = array("tipo" => array(),
+								"horas" => array());
 
 	// definindo valores por linha encontrada no select
 	for($i=0; $stmt->fetch(); $i++) {
@@ -64,13 +68,28 @@
 
 		$data_fim = new DateTime($presenca['data'][$i]);
 		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
-		if($i > 0 && ($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1)
-	    	array_push($presenca_matricula, date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
+		if($i > 0 && ($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1) {
+	    	array_push($presenca_matricula['tipo'], "Presencial");
+		    array_push($presenca_matricula['horas'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
+		}
 
 		$data_inicio = clone $data_fim;
 	}
 
+// LISTAR HORARIOS DE EVENTO
+	$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=?");
+	// definir dependencias da query preparada
+	$stmt->bind_param("s", $matricula);
+	$stmt->execute();
 
+	$stmt->bind_result($nomeEvento, $inicioEvento, $fimEvento);
+	for($i=0; $stmt->fetch(); $i++) {
+		$data_inicio = new DateTime($inicioEvento);
+		$data_fim = new DateTime($fimEvento);
+
+	    array_push($presenca_matricula['tipo'], $nomeEvento);
+		array_push($presenca_matricula['horas'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
+	}
 
 // RECONHECER NOME DE USUARIO
 	$stmt = $conn->prepare("SELECT `nome` FROM `usuarios` WHERE `matr`=?");
@@ -167,32 +186,28 @@
 						<table class="large-12 small-12 columns">
 							<thead>
 								<tr>
-									<th>Dia</th>
-									<th>Horário Entrada</th>
-									<th>Horário Saída</th>
-									<th>Horas</th>
-									<th>Tipo</th>
+									<th class="text-center">Horário Entrada</th>
+									<th class="text-center">Horário Saída</th>
+									<th class="text-center">Período</th>
+									<th class="text-center">Tipo</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr>
-									<td class="text-center">04/11/2015</td>
-									<td class="text-center">16:00</td>
-									<td class="text-center">17:00</td>
+									<td class="text-center">04/11/2015 16:00</td>
+									<td class="text-center">04/11/2015 17:00</td>
 									<td class="text-center">1:00</td>
 									<td class="text-center">Presencial</td>
 								</tr>
 								<tr>
-									<td class="text-center">03/11/2015</td>
-									<td class="text-center">13:10</td>
-									<td class="text-center">15:00</td>
+									<td class="text-center">03/11/2015 13:10</td>
+									<td class="text-center">03/11/2015 15:00</td>
 									<td class="text-center">1:50</td>
 									<td class="text-center">Capacitação JavaScript</td>
 								</tr>
 								<tr>
-									<td class="text-center">01/11/2015</td>
-									<td class="text-center">16:00</td>
-									<td class="text-center">17:00</td>
+									<td class="text-center">01/11/2015 16:00</td>
+									<td class="text-center">01/11/2015 17:00</td>
 									<td class="text-center">1:00</td>
 									<td class="text-center">Presencial</td>
 								</tr>
