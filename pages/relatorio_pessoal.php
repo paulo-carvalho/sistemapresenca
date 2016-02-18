@@ -54,6 +54,9 @@
 	$data_inicio = new DateTime();
 	$data_fim = new DateTime();
 
+	// para armazenar todos os intervalos de tempo da matricula que "bateu ponto"
+	$presenca_matricula = array();
+
 	// definindo valores por linha encontrada no select
 	for($i=0; $stmt->fetch(); $i++) {
 	    array_push($presenca['data'], $presenca_data);
@@ -62,10 +65,12 @@
 		$data_fim = new DateTime($presenca['data'][$i]);
 		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
 		if($i > 0 && ($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1)
-	    	echo date_diff($data_inicio, $data_fim)->format('%H:%I:%S');
+	    	array_push($presenca_matricula, date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
 
 		$data_inicio = clone $data_fim;
 	}
+
+
 
 // RECONHECER NOME DE USUARIO
 	$stmt = $conn->prepare("SELECT `nome` FROM `usuarios` WHERE `matr`=?");
