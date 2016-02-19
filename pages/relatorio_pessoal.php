@@ -58,8 +58,10 @@
 	$data_fim = new DateTime();
 
 	// para armazenar todos os intervalos de tempo da matricula que "bateu ponto"
-	$presenca_matricula = array("tipo" => array(),
-								"horas" => array());
+	$presenca_matricula = array("horarioEntrada" => array(),
+								"horarioSaida" => array(),
+								"permanencia" => array(),
+								"tipo" => array());
 
 	// definindo valores por linha encontrada no select
 	for($i=0; $stmt->fetch(); $i++) {
@@ -69,12 +71,20 @@
 		$data_fim = new DateTime($presenca['data'][$i]);
 		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
 		if($i > 0 && ($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1) {
+			array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
 	    	array_push($presenca_matricula['tipo'], "Presencial");
-		    array_push($presenca_matricula['horas'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
 		}
+
+		// linhas pares: membro bate ponto para entrar. Linhas impares: membro bate ponto para sair.
+		if($i % 2 == 0)
+			array_push($presenca_matricula['horarioEntrada'], $data_fim);
+		else
+			array_push($presenca_matricula['horarioSaida'], $data_fim);
 
 		$data_inicio = clone $data_fim;
 	}
+
+	var_dump($presenca_matricula);
 
 // LISTAR HORARIOS DE EVENTO
 	$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=?");
@@ -87,8 +97,8 @@
 		$data_inicio = new DateTime($inicioEvento);
 		$data_fim = new DateTime($fimEvento);
 
+		array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
 	    array_push($presenca_matricula['tipo'], $nomeEvento);
-		array_push($presenca_matricula['horas'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
 	}
 
 // RECONHECER NOME DE USUARIO
@@ -188,29 +198,23 @@
 								<tr>
 									<th class="text-center">Horário Entrada</th>
 									<th class="text-center">Horário Saída</th>
-									<th class="text-center">Período</th>
+									<th class="text-center">Permanência</th>
 									<th class="text-center">Tipo</th>
 								</tr>
 							</thead>
 							<tbody>
+							<?php
+								for($i=0; $i < count($presenca_matricula['horarioEntrada']); $i++) {
+							?>
 								<tr>
-									<td class="text-center">04/11/2015 16:00</td>
-									<td class="text-center">04/11/2015 17:00</td>
-									<td class="text-center">1:00</td>
-									<td class="text-center">Presencial</td>
+									<td class="text-center"><?php echo $presenca_matricula['horarioEntrada'][$i]->format('d/m/Y H:i:s'); ?></td>
+									<td class="text-center"><?php echo $presenca_matricula['horarioSaida'][$i]->format('d/m/Y H:i:s');; ?></td>
+									<td class="text-center"><?php echo $presenca_matricula['permanencia'][$i]; ?></td>
+									<td class="text-center"><?php echo $presenca_matricula['tipo'][$i]; ?></td>
 								</tr>
-								<tr>
-									<td class="text-center">03/11/2015 13:10</td>
-									<td class="text-center">03/11/2015 15:00</td>
-									<td class="text-center">1:50</td>
-									<td class="text-center">Capacitação JavaScript</td>
-								</tr>
-								<tr>
-									<td class="text-center">01/11/2015 16:00</td>
-									<td class="text-center">01/11/2015 17:00</td>
-									<td class="text-center">1:00</td>
-									<td class="text-center">Presencial</td>
-								</tr>
+							<?php
+								}
+							?>
 							</tbody>
 						</table>
 
