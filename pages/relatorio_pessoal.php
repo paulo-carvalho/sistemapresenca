@@ -11,7 +11,7 @@
 	$relatorioDataInicio = ''; //para nao dar falha ao primeiro acesso da pagina
 	$relatorioDataFim = ''; //para nao dar falha ao primeiro acesso da pagina
 
-// FILTRAR PERIODO DE CONSULTA PARA O RELATORIO DE HORAS DE TRABALHO
+// FILTRAR PERIODO DE CONSULTA PARA O RELATORIO DE HORAS DE TRABALHO ---
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$relatorioDataInicio = (isset($_POST['relatorioDataInicio'])) ? $_POST['relatorioDataInicio'] : '';
 		$relatorioDataFim = (isset($_POST['relatorioDataFim'])) ? $_POST['relatorioDataFim'] : '';
@@ -74,7 +74,6 @@
 			array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
 	    	array_push($presenca_matricula['tipo'], "Presencial");
 		}
-
 		// linhas pares: membro bate ponto para entrar. Linhas impares: membro bate ponto para sair.
 		if($i % 2 == 0)
 			array_push($presenca_matricula['horarioEntrada'], $data_fim);
@@ -84,9 +83,7 @@
 		$data_inicio = clone $data_fim;
 	}
 
-	var_dump($presenca_matricula);
-
-// LISTAR HORARIOS DE EVENTO
+// LISTAR HORARIOS DE EVENTO ---
 	$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=?");
 	// definir dependencias da query preparada
 	$stmt->bind_param("s", $matricula);
@@ -97,8 +94,29 @@
 		$data_inicio = new DateTime($inicioEvento);
 		$data_fim = new DateTime($fimEvento);
 
+		array_push($presenca_matricula['horarioEntrada'], $data_inicio);
+		array_push($presenca_matricula['horarioSaida'], $data_fim);
 		array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
 	    array_push($presenca_matricula['tipo'], $nomeEvento);
+	}
+
+// LISTAR PRESENCA EM REUNIÃO GERAL ---
+	$stmt = $conn->prepare(
+		"SELECT `data_inicio`, `data_fim` FROM `reuniao_geral` AS rg INNER JOIN
+		`presenca_reuniao` AS pr ON rg.`id_reuniao`=pr.`id_reuniao` WHERE pr.`matr`=?");
+	// definir dependencias da query preparada
+	$stmt->bind_param("s", $matricula);
+	$stmt->execute();
+
+	$stmt->bind_result($inicioReuniao, $fimReuniao);
+	for($i=0; $stmt->fetch(); $i++) {
+		$data_inicio = new DateTime($inicioEvento);
+		$data_fim = new DateTime($fimEvento);
+
+		array_push($presenca_matricula['horarioEntrada'], $data_inicio);
+		array_push($presenca_matricula['horarioSaida'], $data_fim);
+		array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
+	    array_push($presenca_matricula['tipo'], 'Reunião Geral');
 	}
 
 // RECONHECER NOME DE USUARIO
@@ -204,7 +222,7 @@
 							</thead>
 							<tbody>
 							<?php
-								for($i=0; $i < count($presenca_matricula['horarioEntrada']); $i++) {
+								for($i=0; $i < count($presenca_matricula['permanencia']); $i++) {
 							?>
 								<tr>
 									<td class="text-center"><?php echo $presenca_matricula['horarioEntrada'][$i]->format('d/m/Y H:i:s'); ?></td>
