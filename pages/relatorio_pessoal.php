@@ -110,8 +110,8 @@
 
 	$stmt->bind_result($inicioReuniao, $fimReuniao);
 	for($i=0; $stmt->fetch(); $i++) {
-		$data_inicio = new DateTime($inicioEvento);
-		$data_fim = new DateTime($fimEvento);
+		$data_inicio = new DateTime($inicioReuniao);
+		$data_fim = new DateTime($fimReuniao);
 
 		array_push($presenca_matricula['horarioEntrada'], $data_inicio);
 		array_push($presenca_matricula['horarioSaida'], $data_fim);
