@@ -145,6 +145,10 @@
 
 							<?php
 								}
+
+								// Imprime mensagem se ninguem estiver na empresa
+								if($i == 0)
+									echo "<tr><td colspan='3' class='text-center'>Nenhum membro presente.</td></tr>";
 							?>
 						</tbody>
 					</table>
@@ -188,8 +192,8 @@
 			});
 		</script>
 	</body>
-	
-<?php 
+
+<?php
 	$conn->close();
 ?>
 	</html>
