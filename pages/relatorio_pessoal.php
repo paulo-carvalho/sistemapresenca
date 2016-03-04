@@ -83,6 +83,10 @@
 		$data_inicio = clone $data_fim;
 	}
 
+	// Caso especial tratado: caso o usuario AINDA esta na empresa
+	if(count($presenca_matricula['horarioEntrada']) > count($presenca_matricula['horarioSaida']))
+		array_pop($presenca_matricula['horarioEntrada']);
+
 // LISTAR HORARIOS DE EVENTO ---
 	$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=?");
 	// definir dependencias da query preparada
