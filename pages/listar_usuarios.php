@@ -49,8 +49,6 @@
 	<title>Lista de Usuários</title>
 	<link rel="stylesheet" href="../css/foundation.css" />
 	<link rel="stylesheet" href="../foundation-icons/foundation-icons.css" />
-	<link rel="stylesheet" href="../foundation-icons/ foundation-icons.[eot/ttf/svg/woff]" />
-	<script src="../js/vendor/modernizr.js"></script>
 	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
 	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
 </head>
@@ -67,13 +65,11 @@
 				if($msg_erro != "")
 					echo "<div data-alert='' class='alert-box alert'>
 							".$msg_erro."
-							<a href='#' class='close'>×</a>
 						</div>";
 
 				if($msg_sucesso != "")
 					echo "<div data-alert='' class='alert-box success'>
 							".$msg_sucesso."
-							<a href='#' class='close'>×</a>
 						</div>";
 			?>
 			<div class="panel">

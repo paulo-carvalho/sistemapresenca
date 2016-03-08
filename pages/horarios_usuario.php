@@ -45,8 +45,8 @@
 
 		//Se não houverem registros na tabela horários para esse usuário, insere novos dados. 
 		if($count == 0) {
-			$sql_horario1 = "INSERT INTO horarios (matr_usuario, dia_semana, horario, tipo) VALUES ('".$matricula."', '".$dia_horario1."', '".$horario1."', 'Fixo'); ";
-			$sql_horario2 = "INSERT INTO horarios (matr_usuario, dia_semana, horario, tipo) VALUES ('".$matricula."', '".$dia_horario2."', '".$horario2."', 'Fixo'); ";
+			$sql_horario1 = "INSERT INTO horarios (matr_usuario, dia_semana, horario) VALUES ('".$matricula."', '".$dia_horario1."', '".$horario1."'); ";
+			$sql_horario2 = "INSERT INTO horarios (matr_usuario, dia_semana, horario) VALUES ('".$matricula."', '".$dia_horario2."', '".$horario2."'); ";
 
 			/* OPERAÇÃO DE INSERÇÃO */
 			if (isset($sql_horario1) && isset($sql_horario2)) {
@@ -66,8 +66,8 @@
 				$horarios[$i] = $row['id_horario'];
 			}
 
-			$sql_horario1 = "UPDATE horarios SET id_horario=$horarios[1], matr_usuario=$matricula, dia_semana='$dia_horario1', horario='$horario1', tipo='Fixo' WHERE id_horario=$horarios[1]; ";
-			$sql_horario2 = "UPDATE horarios SET id_horario='$horarios[2]', matr_usuario=$matricula, dia_semana='$dia_horario2', horario='$horario2', tipo='Fixo' WHERE id_horario=$horarios[2]; ";
+			$sql_horario1 = "UPDATE horarios SET id_horario=$horarios[1], matr_usuario=$matricula, dia_semana='$dia_horario1', horario='$horario1' WHERE id_horario=$horarios[1]; ";
+			$sql_horario2 = "UPDATE horarios SET id_horario='$horarios[2]', matr_usuario=$matricula, dia_semana='$dia_horario2', horario='$horario2' WHERE id_horario=$horarios[2]; ";
 
 			/*OPERAÇÃO DE ATUALIZAÇÃO */
 			if (isset($sql_horario1) && isset($sql_horario2)) {
