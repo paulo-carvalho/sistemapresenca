@@ -63,6 +63,9 @@
 								"permanencia" => array(),
 								"tipo" => array());
 
+	// variavel que realiza a soma das horas contaveis (presenca, evento, reuniao geral)
+	$soma_presenca = new DateTime('0000-00-00 00:00:00');
+
 	// definindo valores por linha encontrada no select
 	for($i=0; $stmt->fetch(); $i++) {
 	    array_push($presenca['data'], $presenca_data);
@@ -72,6 +75,7 @@
 		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
 		if($i > 0 && ($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1) {
 			array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
+			$soma_presenca->add(date_diff($data_inicio, $data_fim));
 	    	array_push($presenca_matricula['tipo'], "Presencial");
 		}
 		// linhas pares: membro bate ponto para entrar. Linhas impares: membro bate ponto para sair.
@@ -82,6 +86,8 @@
 
 		$data_inicio = clone $data_fim;
 	}
+
+	var_dump($soma_presenca);
 
 	// Caso especial tratado: caso o usuario AINDA esta na empresa
 	if(count($presenca_matricula['horarioEntrada']) > count($presenca_matricula['horarioSaida']))
@@ -209,7 +215,7 @@
 
 						<div class="row">
 							<div class="large-12 columns">
-								<div id="grafico">Criando gráfico, aguarde...</div>
+								<div id="grafico">Gerando gráfico, aguarde...</div>
 							</div>
 						</div>
 
@@ -288,12 +294,10 @@
 		function drawChart() {
 			// Create the data table.
 			var data = google.visualization.arrayToDataTable([
-				['Month', 'Bolivia', 'Ecuador', 'Madagascar', 'Papua New Guinea', 'Rwanda', 'Average'],
-				['2004/05',  165,      938,         522,             998,           450,      614.6],
-				['2005/06',  135,      1120,        599,             1268,          288,      682],
-				['2006/07',  157,      1167,        587,             807,           397,      623],
-				['2007/08',  139,      1110,        615,             968,           215,      609.4],
-				['2008/09',  136,      691,         629,             1026,          366,      569.6]
+				['Semanas', 'Horas de Presença', 'Média'],
+				['31/01/2016',  165,	614.6],
+				['07/02/2016',  135,      682],
+				['14/02/2016',  157,      623]
 			]);
 
 			// Set chart options
@@ -302,7 +306,7 @@
 				vAxis: {title: 'Horas Acumuladas'},
 				hAxis: {title: 'Semanas'},
 				seriesType: 'bars',
-				series: {5: {type: 'line'}}, // A quinta coluna da tabela de dados é gráfico de linha
+				series: {1: {type: 'line'}}, // A quinta coluna da tabela de dados é gráfico de linha
 				height: '500'
 			};
 
