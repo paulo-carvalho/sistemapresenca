@@ -29,55 +29,50 @@
 		header("Location: home.php");
 	}
 
+	$nome = "";
+	$email_pessoal = "";
+	$email_profissional = "";
+	$cargo = "";
+	$diretoria = "";
+	$ingresso_faculdade = "";
+	$ingresso_empresa = "";
+	$data_desligamento = "";
+	$matr = "";
+	$permissao = "";
+
 	/* PARAMETROS RECEBIDOS PELO FORMULÁRIO DE CADASTRO*/
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if(isset($_POST['nome']))
-			$nome = $_POST['nome'];
-		else
-			$nome = "";
+			$nome = $_POST['nome'];			
 
 		if(isset($_POST['email_pessoal']))
 			$email_pessoal = $_POST['email_pessoal'];
-		else
-			$email_pessoal = "";
 
 		if(isset($_POST['email_profissional']))
 			$email_profissional = $_POST['email_profissional'];
-		else
-			$email_profissional = "";
 
 		if(isset($_POST['cargo']))
-			$cargo = $_POST['cargo'];
-		else
-			$cargo = "";
+			$cargo = $_POST['cargo'];			
 
 		if(isset($_POST['diretoria']))
-			$diretoria = $_POST['diretoria'];
-		else
-			$diretoria = "";
+			$diretoria = $_POST['diretoria'];			
 
 		if(isset($_POST['ingresso_faculdade']))
 			$ingresso_faculdade = $_POST['ingresso_faculdade'];
-		else
-			$ingresso_faculdade = "";
 
 		if(isset($_POST['ingresso_empresa']))
-			$ingresso_empresa = $_POST['ingresso_empresa'];
-		else
-			$ingresso_empresa = "";
+			$ingresso_empresa = $_POST['ingresso_empresa'];	
+
+		if(isset($_POST['data_desligamento']))
+			$data_desligamento = $_POST['data_desligamento'];			
 
 		if(isset($_POST['matr']))
-			$matr = $_POST['matr'];
-		else
-			$matr = "";
+			$matr = $_POST['matr'];			
 
 		if(isset($_POST['permissao']))
-			$permissao = $_POST['permissao'];
-		else
-			$permissao = "";
+			$permissao = $_POST['permissao'];			
 
 		$conectado = '0';
-		$data_desligamento = '0';
 
 		if(isset($_POST['senha']))
 			$senha = hash('sha256', $_POST['senha']);
@@ -116,6 +111,8 @@
 		if (isset($sql_cadastrar)) {
 			if (mysqli_query($conn, $sql_cadastrar)) {
 				$msg_sucesso = "Usuário cadastrado com sucesso!";
+				$_SESSION['sucesso_cadastro'] = $msg_sucesso;
+				header("Location: ver_usuario.php?id=$matr");
 			}
 			else
 				$msg_erro = 'Erro: ' . mysqli_error($conn);
@@ -146,6 +143,7 @@
 	<link rel="stylesheet" href="../css/foundation.css" />
 	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
 	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="../foundation-icons/foundation-icons.css" />
 	<!-- Foundation-timepicker CSS -->
     <link type="text/css" href="../css/bootstrap.min.css" />
     <link type="text/css" href="../css/bootstrap-timepicker.min.css" />
@@ -165,13 +163,11 @@
 				if($msg_erro != "")
 					echo "<div data-alert='' class='alert-box alert'>
 							".$msg_erro."
-							<a href='#' class='close'>×</a>
 						</div>";
 
 				if($msg_sucesso != "")
 					echo "<div data-alert='' class='alert-box success'>
 							".$msg_sucesso."
-							<a href='#' class='close'>×</a>
 						</div>";
 			?>
 			<div class="panel">
@@ -183,43 +179,25 @@
 
   							<div class="name-field">
 								<label for="name"> Nome Completo: <span style="color: red;">*</span> 
-									<input type="text" id="nome" name="nome" required autocomplete="off" />
+									<input type="text" id="nome" name="nome" required title="Nome é obrigatório" value='<?php echo $nome?>' autocomplete="off" />
 								</label>
-	    						<small class="error">Nome é um campo obrigatório.</small>
 	    					</div>
 
 							<label for="email"> Email Pessoal: <span style="color: red;">*</span> 
-								<input type="email" id="email_pessoal" name="email_pessoal" required autocomplete="off" />
+								<input type="email" id="email_pessoal" name="email_pessoal" value='<?php echo $email_pessoal?>'required autocomplete="off" />
 							</label>
-    						<small class="error">E-mail Pessoal é um campo obrigatório.</small>
 
     						<label for="email"> Email Profissional: 
-								<input type="email" id="email_profissional" name="email_profissional" autocomplete="off" />
+								<input type="email" id="email_profissional" name="email_profissional" value='<?php echo $email_profissional?>' autocomplete="off" />
 							</label>
 
 							<div class="row">
     							<div class="large-6 columns" >
-		    						<label for="email"> Ingresso na faculdade: <span style="color: red;">*</span> 
-										<input type="text"  id="ingresso_faculdade" name="ingresso_faculdade" placeholder="Ano/Semestre" pattern="[1-2]{1}[0|9]{1}[0-9]{2}\/[1,2]{1}" title="Insira no formato 2016/1" />
-									</label>
-		    						<small class="error">Ingresso na faculdade é um campo obrigatório.</small>
-
-		    					</div>
-		    					<div class="large-6 columns" >
-		    						<label for="email"> Ingresso na Empresa Júnior:
-										<input type="text" id="ingresso_empresa" name="ingresso_empresa" class="fdatepicker" autocomplete="off" />
-									</label>
-		    						<small class="error">Ingresso na Empresa Júnior é um campo obrigatório.</small>
-		    					</div>
-		    				</div>
-
-    						<div class="row">
-    							<div class="large-6 columns" >
-									<label for="cargo">Cargo: <span style="color: red;">*</span> 
+									<label>Cargo: <span style="color: red;">*</span> 
 										<select name="cargo" id="cargo" required>
-											<option value="Trainee">Trainee</option>
-											<option value="Diretor">Diretor</option>
-											<option value="Membro">Membro</option>
+											<option value='Trainee'<?php if('Trainee' == $cargo) echo "selected"?>>Trainee</option>
+											<option value='Diretor'<?php if('Diretor' == $cargo) echo "selected"?>>Diretor</option>
+											<option value='Membro'<?php if('Membro' == $cargo) echo "selected"?>>Membro</option>
 										</select>
 									</label>
 		    						<small class="error">Cargo é um campo obrigatório.</small>
@@ -227,10 +205,17 @@
 		    					<div class="large-6 columns" >
 		    						<label for="diretoria">Diretoria:
 										<select name="diretoria" id="diretoria" required>
-											<option value=" "> </option>
 		    								<?php 
-				    							while ($row = mysqli_fetch_assoc($diretorias)) {		
-				    								echo("<option value='".$row['id_diretoria']."'>".$row['nome_diretoria']."</option>");
+				    							while ($row = mysqli_fetch_assoc($diretorias)) {
+				    						?>	
+				    								<option value='<?php echo $row['id_diretoria']?>'
+				    									<?php 
+				    										if($diretoria != "") { //Se o form já foi submetido ainda
+				    											if($row['id_diretoria'] == $diretoria) //Deixa selecionado a opção 
+				    												echo "selected";
+				    										} 
+				    										else if($row['id_diretoria'] == '6') echo "selected"?>><?php echo $row['nome_diretoria']?></option>
+				    						<?php	
 				    							}				
 											?> 
 										</select>
@@ -238,18 +223,43 @@
 								</div>
 							</div>
 
+
+							<div class="row">
+    							<div class="large-4 columns" >
+		    						<label for="email">  Ingresso na Faculdade: <span style="color: red;">*</span> 
+										<input type="text"  id="ingresso_faculdade" name="ingresso_faculdade" value='<?php echo $ingresso_faculdade?>' placeholder="Ano/Semestre" pattern="[1-2]{1}[0|9]{1}[0-9]{2}\/[1,2]{1}" title="Insira no formato 2016/1" autocomplete="off"/>
+									</label>
+		    					</div>
+		    					<div class="large-4 columns" >
+		    						<label for="email"> Ingresso na Empresa: <span data-tooltip aria-haspopup="true" class="has-tip" title="Data de assinatura do termo"><i class="fi-info"> </i></span>
+										<input type="text" id="ingresso_empresa" name="ingresso_empresa" class="fdatepicker" value='<?php echo $ingresso_empresa?>' autocomplete="off" />
+									</label>
+		    					</div>
+		    					<div class="large-4 columns" >
+		    						<label for="email"> Data de desligamento:
+										<input type="text"  id="data_desligamento" name="data_desligamento" class="fdatepicker" value='<?php echo $data_desligamento?>' autocomplete="off"/>
+									</label>
+		    					</div>
+		    				</div>
+
+
+    						
 							<hr>
 
-							<label for="matricula"> Número de matrícula: <span style="color: red;">*</span> 
-								<input type="text" name="matr" id="matr" required pattern="[0-9]{10}" title="A matrículo deve possuir 10 caracteres" autocomplete="off"/>
-    						<small class="error">Número de matrícula é um campo obrigatório.</small>
+							<label> Número de matrícula: <span style="color: red;">*</span> 
+								<input type="text" name="matr" id="matr" required pattern="[0-9]{10}" title="A matrículo deve possuir 10 caracteres" value='<?php echo $matr?>' autocomplete="off"/>
 							</label>
 
-							<label for="matricula"> Permissão: <span style="color: red;">*</span> 
+							<label> Permissão: <span style="color: red;">*</span> 
 								<select name="permissao" id="permissao" required>
 									<?php 
-		    							while ($row = mysqli_fetch_assoc($permissoes)) {		
-		    								echo("<option value='".$row['id_permissoes']."'>".$row['nome_permissoes']."</option>");		
+		    							while ($row = mysqli_fetch_assoc($permissoes)) {
+		    						?>		
+		    								<option value='<?php echo $row['id_permissoes']?>'
+		    									<?php 
+		    										if($row['id_permissoes'] == $permissao) {
+		    											echo "selected";}?> > <?php echo $row['nome_permissoes']?></option>
+		    						<?php	
 		    							}				
 									?> 
 								</select>
@@ -308,6 +318,7 @@
 		format: 'dd/mm/yyyy'
 	});
 	</script>
+
 </body>
 <?php
 	//Encerra a conexão com o banco

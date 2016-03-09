@@ -23,19 +23,27 @@
 	if($permissao_sessao[0] == 3) { //Se o usuário for pós-júnior, não tem acesso ao sistema
 		header("Location: ../index.php");
 	}
+	
+	$msg_erro = "";
+	$msg_sucesso = "";
+
+	if(isset($_SESSION['sucesso_cadastro'])) {
+    	$msg_sucesso = $_SESSION['sucesso_cadastro'];
+	} else if(isset($_SESSION['sucesso_edicao'])) {
+    	$msg_sucesso = $_SESSION['sucesso_edicao'];
+	}
+	$_SESSION['sucesso_cadastro']="";
+	$_SESSION['sucesso_edicao']="";
 
 	$matr = $_GET['id'];
 	//echo $matr;
 
 	$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
-	$sql_diretoria = "SELECT nome_diretoria FROM usuarios JOIN diretorias ON diretoria=id_diretoria WHERE matr='$matr';";
-	$sql_permissao = "SELECT nome_permissoes FROM usuarios JOIN permissoes ON permissao=id_permissoes WHERE matr='$matr';";
-
-
 	if (isset($sql_usuario)) {	
 		$result = mysqli_query($conn, $sql_usuario);
 	}
 	
+	$sql_diretoria = "SELECT nome_diretoria FROM usuarios JOIN diretorias ON diretoria=id_diretoria WHERE matr='$matr';";
 	if (isset($sql_diretoria)) {	
 		$result2 = mysqli_query($conn, $sql_diretoria);
 	} else
@@ -45,6 +53,7 @@
 		$nome_diretoria = $row['nome_diretoria'];
 	}
 
+	$sql_permissao = "SELECT nome_permissoes FROM usuarios JOIN permissoes ON permissao=id_permissoes WHERE matr='$matr';";
 	if (isset($sql_permissao)) {	
 		$result3 = mysqli_query($conn, $sql_permissao);
 	} else
@@ -78,8 +87,20 @@
 
 	<div class="row">
 		<div class="large-12 columns">
+			<?php
+				if($msg_erro != "")
+					echo "<div data-alert='' class='alert-box alert'>
+							".$msg_erro."
+						</div>";
+
+				if($msg_sucesso != "")
+					echo "<div data-alert='' class='alert-box success'>
+							".$msg_sucesso."
+						</div>";
+			?>
 			<div class="panel">
 				<h3 class="text-center"><?php echo $row['nome']?></h3>
+				<h5 class="text-center"><small>Usuário criado em <?php echo $row['data_criacao']?></small></h5>
 				<br>
 				<div class="row">
 
@@ -90,17 +111,8 @@
 							<label> Nome Completo: <input type="text" id="name" value='<?php echo $row['nome']?>' disabled/> </label>
 							<label> Email Pessoal: <input type="text" id="email" value='<?php echo $row['email_pessoal']?>' disabled/> </label>
 							<label> Email Profissional: <input type="text" id="email" value='<?php echo $row['email_profissional']?>' disabled/> </label>
-							
-							<div class="row">
-    							<div class="large-6 columns" >
-		    						<label> Ingresso na faculdade: <input type="text" value='<?php echo $row['ingresso_faculdade']?>' disabled/></label>
-		    					</div>
-		    					<div class="large-6 columns" >
-		    						<label> Ingresso na Empresa Júnior: <input type="text" value='<?php echo $row['ingresso_empresa']?>' disabled/> </label>
-		    					</div>
-		    				</div>
 
-		    				<div class="row">
+							<div class="row">
     							<div class="large-6 columns" >
 									<label>Cargo: 
 										<select disabled>
@@ -115,21 +127,49 @@
 										</select>
 									</label>
 								</div>
-							</div>
+							</div>		
+							
+							<div class="row">
+    							<div class="large-4 columns" >
+		    						<label> Ingresso na Faculdade: <input type="text" value='<?php echo $row['ingresso_faculdade']?>' disabled/></label>
+		    					</div>
+		    					<div class="large-4 columns" >
+		    						<label> Ingresso na Empresa Júnior: <input type="text" value='<?php echo $row['ingresso_empresa']?>' disabled/> </label>
+		    					</div>
+		    					<div class="large-4 columns" >
+		    						<label> Data de desligamento: <input type="text" value='<?php echo $row['data_desligamento']?>' disabled/> </label>
+		    					</div>
+		    				</div>
+
+		    									
+
+							<?php
+								//Apenas o administrador pode ver a permissão do usuário
+								if($permissao_sessao[0] == 1) {
+							?>
+									<label >Permissão:
+										<select disabled>
+											<option value=""><?php echo $nome_permissao?></option>
+										</select>
+									</label>
+							<?php
+								}
+							?>
+
 							<br>
 
 							<?php
-									//Apenas o administrador pode Editar o usuário
-									if($permissao_sessao[0] == 1) {
-								?>
-										<div class="row">
-											<div class="large-12 columns text-center">
-												<a href="editar_usuario.php?id=<?php echo $matr?>"class="small round button">Editar usuário</a>
-											</div>
+								//Apenas o administrador pode Editar o usuário
+								if($permissao_sessao[0] == 1) {
+							?>
+									<div class="row">
+										<div class="large-12 columns text-center">
+											<a href="editar_usuario.php?id=<?php echo $matr?>"class="small round button">Editar usuário</a>
 										</div>
-								<?php
-									}
-								?>
+									</div>
+							<?php
+								}
+							?>
 						</form>
 						<?php 
 							}
