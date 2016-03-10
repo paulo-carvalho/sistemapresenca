@@ -51,15 +51,14 @@
 			/* OPERAÇÃO DE INSERÇÃO */
 			if (isset($sql_horario1) && isset($sql_horario2)) {
 				if (mysqli_query($conn, $sql_horario1) && mysqli_query($conn, $sql_horario2)) {
-					$msg_sucesso = "Horários Fixos Atualizados!";
+					$msg_sucesso = "Horários Fixos Cadastrados!";
 				}
 				else
 					$msg_erro = "Erro ao atualizar os horários!";
 			}
 		}
-	
+		//Se o usuário já tiver horários cadastrados, atualiza
 		else if($count == 2) {
-			//$arr = array("foo" => "bar", 12 => true);
 			$horarios = array();
 			for($i=1; $i<=$count; $i++) {
 				$row = mysqli_fetch_assoc($result_sql_verifica);

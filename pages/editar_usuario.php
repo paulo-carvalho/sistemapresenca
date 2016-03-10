@@ -160,10 +160,13 @@
 									?> 
 								</select>
 							</label>
+							<br>
 							<div class="row">
-								<div class="large-12 columns text-center">
-									<button type="submit" id="salvar_edicao" class="small round button">Salvar edição</button>
-									<a href="listar_usuarios.php" class="small round button">Cancelar</a>
+								<div class="large-6 columns text-right">
+									<a href="listar_usuarios.php" class="small button">Cancelar</a>
+								</div>
+								<div class="large-6 columns text-left">
+									<button type="submit" id="salvar_edicao" class="small button">Salvar edição</button>
 								</div>
 							</div>
 							<br>

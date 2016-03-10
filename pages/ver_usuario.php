@@ -157,19 +157,26 @@
 							?>
 
 							<br>
+							<div class="row">
+								<div class="large-6 columns text-right">
+									<a href="listar_usuarios.php"class="small button">Voltar</a>
+								</div>
 
 							<?php
 								//Apenas o administrador pode Editar o usuário
 								if($permissao_sessao[0] == 1) {
 							?>
-									<div class="row">
-										<div class="large-12 columns text-center">
-											<a href="editar_usuario.php?id=<?php echo $matr?>"class="small round button">Editar usuário</a>
-										</div>
-									</div>
+									
+								<div class="large-6 columns text-left">
+									<a href="editar_usuario.php?id=<?php echo $matr?>"class="small button">Editar usuário</a>
+								</div>
+									
 							<?php
 								}
 							?>
+								
+
+							</div>
 						</form>
 						<?php 
 							}
