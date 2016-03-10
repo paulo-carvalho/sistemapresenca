@@ -272,6 +272,7 @@ INSERT INTO `usuarios` (`matr`, `nome`, `senha`, `email_pessoal`, `email_profiss
 ALTER TABLE `evento`
   ADD CONSTRAINT `fk_evento_usuarios1` FOREIGN KEY (`matr`) REFERENCES `usuarios` (`matr`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
+
 --
 -- Constraints for table `usuarios`
 --
