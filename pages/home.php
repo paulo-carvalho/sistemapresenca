@@ -92,7 +92,6 @@
 		<div class="row">
 			<div class="large-8 medium-8 small-12 large-push-2 medium-push-2 alert-box success">
 				<?php echo $nomeUsuario; ?>, você atualmente está na empresa.
-				<a href="" class="close">&times;</a>
 			</div>
 		</div>
 <?php
@@ -101,7 +100,6 @@
 		<div class="row">
 			<div class="large-8 medium-8 small-12 large-push-2 medium-push-2 alert-box alert">
 				<?php echo $nomeUsuario; ?>, você atualmente NÃO está na empresa.
-				<a href="" class="close">&times;</a>
 			</div>
 		</div>
 <?php
