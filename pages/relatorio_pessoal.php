@@ -87,6 +87,7 @@
 		$data_inicio = clone $data_fim;
 	}
 
+	$soma_presenca->h += $soma_presenca->d * 24;
 	var_dump($soma_presenca);
 
 	// Caso especial tratado: caso o usuario AINDA esta na empresa
