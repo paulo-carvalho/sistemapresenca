@@ -87,8 +87,7 @@
 		$data_inicio = clone $data_fim;
 	}
 
-	$soma_presenca->h += $soma_presenca->d * 24;
-	var_dump($soma_presenca);
+	var_dump($soma_presenca->getTimestamp());
 
 	// Caso especial tratado: caso o usuario AINDA esta na empresa
 	if(count($presenca_matricula['horarioEntrada']) > count($presenca_matricula['horarioSaida']))
