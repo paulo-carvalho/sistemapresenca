@@ -8,32 +8,20 @@
 	if(!isset($_SESSION['matricula']))
     	header("Location: ../index.php");
 
-	$relatorioDataInicio = ''; //para nao dar falha ao primeiro acesso da pagina
-	$relatorioDataFim = ''; //para nao dar falha ao primeiro acesso da pagina
+	$mesReferencia = ''; //para nao dar falha ao primeiro acesso da pagina
 
 // FILTRAR PERIODO DE CONSULTA PARA O RELATORIO DE HORAS DE TRABALHO ---
-	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-		$relatorioDataInicio = (isset($_POST['relatorioDataInicio'])) ? $_POST['relatorioDataInicio'] : '';
-		$relatorioDataFim = (isset($_POST['relatorioDataFim'])) ? $_POST['relatorioDataFim'] : '';
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['mesReferencia'] != "") {
+		$mesReferencia = $_POST['mesReferencia'];
 
-		// caso o botão de atualizar seja acionado com campos vazios
-		if($relatorioDataFim == '') {
-			$dataFimFormatada = new DateTime();
-			$dataFimFormatada = $dataFimFormatada->format('Y-m-d');
-		} else {
-			$arrDataFim = explode('/', $relatorioDataFim);
-			$dataFimFormatada = $arrDataFim[2].'-'.$arrDataFim[1].'-'.$arrDataFim[0];
-		}
-		if($relatorioDataInicio == '') {
-			$dataInicioFormatada = '2016-01-01';
-		} else {
-			$arrDataFim = explode('/', $relatorioDataInicio);
-			$dataInicioFormatada = $arrDataFim[2].'-'.$arrDataFim[1].'-'.$arrDataFim[0];
-		}
+		// botao atualizar acionado com parametro imposto
+		$mesReferenciaFragmentado = explode('/', $mesReferencia);
+		$paramMesReferenciaInicio = $mesReferenciaFragmentado[1].'-'.$mesReferenciaFragmentado[0]."-01";
+		$paramMesReferenciaFim = $mesReferenciaFragmentado[1].'-'.($mesReferenciaFragmentado[0]+1)."-01";
 
 		//montando esqueleto da sentenca
 		$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=? AND `data` BETWEEN ? AND ?;");
-		$stmt->bind_param("sss", $matricula, $dataInicioFormatada, $dataFimFormatada);
+		$stmt->bind_param("sss", $matricula, $paramMesReferenciaInicio, $paramMesReferenciaFim);
 
 	} else {
 		// ELSE: listar todas as presencas do usuario
@@ -87,16 +75,21 @@
 		$data_inicio = clone $data_fim;
 	}
 
-	var_dump($soma_presenca->getTimestamp());
+	echo $soma_presenca->format('d-m-y');
 
 	// Caso especial tratado: caso o usuario AINDA esta na empresa
 	if(count($presenca_matricula['horarioEntrada']) > count($presenca_matricula['horarioSaida']))
 		array_pop($presenca_matricula['horarioEntrada']);
 
 // LISTAR HORARIOS DE EVENTO ---
-	$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=?");
-	// definir dependencias da query preparada
-	$stmt->bind_param("s", $matricula);
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['mesReferencia'] != "") {
+		$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=? AND `data_inicio` BETWEEN ? AND ?;");
+		$stmt->bind_param("sss", $matricula, $paramMesReferenciaInicio, $paramMesReferenciaFim);
+	} else {
+		$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=?");
+		$stmt->bind_param("s", $matricula);
+	}
+
 	$stmt->execute();
 
 	$stmt->bind_result($nomeEvento, $inicioEvento, $fimEvento);
@@ -111,11 +104,19 @@
 	}
 
 // LISTAR PRESENCA EM REUNIÃO GERAL ---
-	$stmt = $conn->prepare(
-		"SELECT `data_inicio`, `data_fim` FROM `reuniao_geral` AS rg INNER JOIN
-		`presenca_reuniao` AS pr ON rg.`id_reuniao`=pr.`id_reuniao` WHERE pr.`matr`=?");
-	// definir dependencias da query preparada
-	$stmt->bind_param("s", $matricula);
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['mesReferencia'] != "") {
+		$stmt = $conn->prepare(
+			"SELECT `data_inicio`, `data_fim` FROM `reuniao_geral` AS rg INNER JOIN
+			`presenca_reuniao` AS pr ON rg.`id_reuniao`=pr.`id_reuniao` WHERE pr.`matr`=?
+			AND `data_inicio` BETWEEN ? AND ?;");
+		$stmt->bind_param("sss", $matricula, $paramMesReferenciaInicio, $paramMesReferenciaFim);
+	} else {
+		$stmt = $conn->prepare(
+			"SELECT `data_inicio`, `data_fim` FROM `reuniao_geral` AS rg INNER JOIN
+			`presenca_reuniao` AS pr ON rg.`id_reuniao`=pr.`id_reuniao` WHERE pr.`matr`=?");
+		// definir dependencias da query preparada
+		$stmt->bind_param("s", $matricula);
+	}
 	$stmt->execute();
 
 	$stmt->bind_result($inicioReuniao, $fimReuniao);
@@ -179,24 +180,19 @@
 						<div class="row">
 						<form name="periodoRelatorio" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
 							<?php
-								$arrInicio = explode("-" ,$relatorioDataInicio);
-								$arrFim = explode("-" ,$relatorioDataFim);
+								$arrInicio = explode("-" ,$mesReferencia);
 							?>
-							<div class="large-4 columns">
-								<label> Data início: </label>
-								<input type="text" id="relatorioDataInicio" name="relatorioDataInicio"
-								placeholder="DD/MM/AAAA" class="fdatepicker" autocomplete="off"
-								value="<?php echo isset($relatorioDataInicio) ? $relatorioDataInicio : ''; ?>" />
+							<div class="large-4 large-push-3 medium-4 medium-push-2 small-6 small-push-1 columns">
+								<label> Mês/Ano de Referência:
+									<input type="text" id="mesReferencia"
+									name="mesReferencia" placeholder="MM/AAAA"
+									class="fdatepicker" autocomplete="off"
+									pattern="[0-9]{2}/[0-9]{4}"
+									value="<?php echo isset($mesReferencia) ? $mesReferencia : ''; ?>" />
+								</label>
 							</div>
 
-							<div class="large-4 columns">
-								<label> Data fim: </label>
-								<input type="text" id="relatorioDataFim" name="relatorioDataFim"
-								placeholder="DD/MM/AAAA" class="fdatepicker" autocomplete="off"
-								value="<?php echo isset($relatorioDataFim) ? $relatorioDataFim : ''; ?>" />
-							</div>
-
-							<div class="large-4 columns">
+							<div class="large-4 large-pull-1 medium-4 medium-pull-2 small-5 columns">
 								<br>
 								<button class="tiny button" name="Atualizar" type="submit">Atualizar</button>
 							</div>
@@ -265,6 +261,7 @@
 	<script src="../js/vendor/modernizr.js"></script>
 	<script src="../js/vendor/jquery.js"></script>
 	<script src="../js/foundation/foundation.js"></script>
+	<!-- Foundation topbar para menu no topo da pagina -->
 	<script src="../js/foundation/foundation.topbar.js"></script>
 	<script type="text/javascript">
 		$(document).foundation();
@@ -273,10 +270,12 @@
 	<script src="../js/foundation-datepicker/foundation-datepicker.min.js"></script>
 	<script src="../js/foundation-datepicker/locales/foundation-datepicker.pt-br.js"></script>
 	<script type="text/javascript">
-	$('.fdatepicker').fdatepicker({
-		language: 'pt-br', //versao brasileira de foundation-datepicker
-		format: 'dd/mm/yyyy'
-	});
+		$('.fdatepicker').fdatepicker({
+			language: 'pt-br', //versao brasileira de foundation-datepicker
+			format: 'mm/yyyy',
+			startView: 3,
+			minView: 3
+		});
 	</script>
 	<!-- Carrega AJAX API para Google Charts-->
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>

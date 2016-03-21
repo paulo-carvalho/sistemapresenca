@@ -91,8 +91,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			</div>
 		</div>
 	</div>
-</div>
-</div>
+
+	<div class="row">
+		<div class="large-12 columns">
+			<p class="text-center">&copy; 2016 UFMG Informática Júnior.</p>
+		</div>
+	</div>
+
 </body>
 	<script src="js/vendor/modernizr.js"></script>
 	<script src="js/vendor/jquery.js"></script>
