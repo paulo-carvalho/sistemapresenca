@@ -74,6 +74,7 @@
 
 		$data_inicio = clone $data_fim;
 	}
+	// SELECT *, yearweek(`data`) FROM `presenca` WHERE yearweek(`data`) BETWEEN yearweek('2016-03-01') AND yearweek('2016-03-31') GROUP BY yearweek(`data`) 
 
 	echo $soma_presenca->format('d-m-y');
 
@@ -238,6 +239,10 @@
 								</tr>
 							<?php
 								}
+
+								// se não foram encontrado registros, imprime mensagem
+								if($i == 0)
+									echo "<tr><td class='text-center' colspan='4'>Nenhum registro encontrado</td></tr>";
 							?>
 							</tbody>
 						</table>
