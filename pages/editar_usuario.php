@@ -160,7 +160,27 @@
 									?> 
 								</select>
 							</label>
-							<br>
+							<hr>
+							<div class="row">
+    							<div class="large-12 columns" >
+    								<center><h5 class="subheader">Alterar Senha</h5></center>
+		    					</div>
+		    				</div>
+		    				<div class="row">
+    							<div class="large-12 columns" >
+									<label> Senha antiga:
+										<input type="text" id="senha_antiga" name="senha_antiga"/>
+									</label>
+								</div>
+		    				</div>
+							<div class="row">
+    							<div class="large-12 columns" >
+									<label> Nova senha:
+										<input type="text" id="nova_senha" name="senha_antiga"/>
+									</label>
+								</div>
+		    				</div>
+
 							<div class="row">
 								<div class="large-6 columns text-right">
 									<a href="listar_usuarios.php" class="small button">Cancelar</a>

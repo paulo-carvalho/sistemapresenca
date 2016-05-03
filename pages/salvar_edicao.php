@@ -49,6 +49,24 @@
 		else
 			$permissao = "";
 
+		if(isset($_POST['senha_antiga']))
+			$senha_antiga = $_POST['senha_antiga'];
+		else
+			$senha_antiga = "";
+
+		if(isset($_POST['senha_nova']))
+			$senha_nova = $_POST['senha_nova'];
+		else
+			$senha_nova = "";		
+
+
+		$sql_senha = "SELECT senha FROM usuarios WHERE matr='$matricula';";
+
+		if (isset($verifica_senha)) {
+			$senha = mysqli_query($conn, $sql_senha);
+		}
+
+		echo $senha;
 		
 
 		$editar = "UPDATE usuarios SET nome='$nome', email_pessoal='$email_pessoal', email_profissional='$email_profissional', diretoria='$diretoria', cargo='$cargo', ingresso_faculdade='$ingresso_faculdade', ingresso_empresa='$ingresso_empresa', permissao=$permissao, data_desligamento='$data_desligamento' WHERE matr='$matricula';";
