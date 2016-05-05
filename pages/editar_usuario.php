@@ -30,31 +30,31 @@
 	//Armazena o resultado da query acima no array permissao_sessao.
 	//O valor fica armazenado na posição permissao_sessao[0]
 	$permissao_sessao = mysqli_fetch_row($controle);
-	
+
 	if($permissao_sessao[0] == 3) { //Se o usuário for pós-júnior, não tem acesso ao sistema
 		header("Location: ../index.php");
 	}
 
-	//QUERIES PARA PREENCHER FORMULÁRIO	
+	//QUERIES PARA PREENCHER FORMULÁRIO
 	//Pega os dados do usuário a ser editado
 	$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
-	if (isset($sql_usuario)) {	
+	if (isset($sql_usuario)) {
 		$usuario = mysqli_query($conn, $sql_usuario);
 	}
 
 	$sql_diretorias = "SELECT id_diretoria, nome_diretoria FROM diretorias";
-	if (isset($sql_diretorias)) {	
+	if (isset($sql_diretorias)) {
 		$diretorias = mysqli_query($conn, $sql_diretorias);
 	}
 
 	$sql_permissoes = "SELECT id_permissoes, nome_permissoes FROM permissoes;";
-	if (isset($sql_permissoes)) {	
+	if (isset($sql_permissoes)) {
 		$permissoes = mysqli_query($conn, $sql_permissoes);
 	}
-	
+
 
 	while ($user = mysqli_fetch_assoc($usuario)) {
-						
+
 
 ?>
 <!doctype html>
@@ -80,15 +80,17 @@
 	<div class="row">
 		<div class="large-12 columns">
 			<?php
-				if($msg_erro != "")
+				if($_SESSION['erro_edicao'] != "")
 					echo "<div data-alert='' class='alert-box alert'>
-							".$msg_erro."
+							".$_SESSION['erro_edicao']."
 						</div>";
+				$_SESSION['erro_edicao']="";
 
-				if($msg_sucesso != "")
+				if($_SESSION['sucesso_edicao'] != "")
 					echo "<div data-alert='' class='alert-box success'>
-							".$msg_sucesso."
+							".$_SESSION['sucesso_edicao']."
 						</div>";
+				$_SESSION['sucesso_edicao']="";
 			?>
 			<div class="panel">
 				<h3 class="text-center"><?php echo $user['nome']?></h3>
@@ -97,7 +99,7 @@
 
 					<div class="large-8 push-2 columns">
 						<form id="editar" name="editar" method="post" action="salvar_edicao.php" data-abide>
-							<label class="fn"><strong> Número matrícula: </strong><input type="text" id="matr" name="matr" value='<?php echo $user['matr']?>' readonly/> </label> 
+							<label class="fn"><strong> Número matrícula: </strong><input type="text" id="matr" name="matr" value='<?php echo $user['matr']?>' readonly/> </label>
 							<label> Nome Completo: <span style="color: red;">*</span>
 								<input type="text"  id="nome" name="nome" value='<?php echo $user['nome']?>' required title="Nome é obrigatório"/> </label>
 							<label> Email Pessoal: <span style="color: red;">*</span>
@@ -118,13 +120,13 @@
 		    					<div class="large-6 columns" >
 		    						<label >Diretoria:
 										<select name="diretoria" id="diretoria" required title="Diretoria é obrigatório">
-		    								<?php 
+		    								<?php
 				    							while ($row = mysqli_fetch_assoc($diretorias)) {
-				    						?>	
+				    						?>
 				    								<option value='<?php echo $row['id_diretoria']?>'<?php if($row['id_diretoria'] == $user['diretoria']) echo "selected"?>><?php echo $row['nome_diretoria']?></option>
-				    						<?php	
-				    							}				
-											?> 
+				    						<?php
+				    							}
+											?>
 										</select>
 									</label>
 								</div>
@@ -138,26 +140,26 @@
 		    					</div>
 		    					<div class="large-4 columns" >
 		    						<label> Ingresso na Empresa: <span data-tooltip aria-haspopup="true" class="has-tip" title="Data de assinatura do termo"><i class="fi-info"> </i></span>
-		    							<input type="text" id="ingresso_empresa" name="ingresso_empresa" value='<?php echo $user['ingresso_empresa']?>'  class="fdatepicker" autocomplete="off"  /> 
+		    							<input type="text" id="ingresso_empresa" name="ingresso_empresa" value='<?php echo $user['ingresso_empresa']?>'  class="fdatepicker" autocomplete="off"  />
 		    						</label>
 		    					</div>
 		    					<div class="large-4 columns" >
 		    						<label> Data de desligamento:
-		    							<input type="text" id="data_desligamento" name="data_desligamento" value='<?php echo $user['data_desligamento']?>'  class="fdatepicker" autocomplete="off"  /> 
+		    							<input type="text" id="data_desligamento" name="data_desligamento" value='<?php echo $user['data_desligamento']?>'  class="fdatepicker" autocomplete="off"  />
 		    						</label>
 		    					</div>
-		    					
+
 		    				</div>
 
-							<label> Permissão: <span style="color: red;">*</span> 
+							<label> Permissão: <span style="color: red;">*</span>
 								<select name="permissao" id="permissao" required>
-									<?php 
+									<?php
 		    							while ($row = mysqli_fetch_assoc($permissoes)) {
-    								?>	
+    								?>
 		    								<option value='<?php echo $row['id_permissoes']?>'<?php if($row['id_permissoes'] == $user['permissao']) echo "selected"?>><?php echo $row['nome_permissoes']?></option>
-		    						<?php	
-		    							}				
-									?> 
+		    						<?php
+		    							}
+									?>
 								</select>
 							</label>
 							<hr>
@@ -169,14 +171,21 @@
 		    				<div class="row">
     							<div class="large-12 columns" >
 									<label> Senha antiga:
-										<input type="text" id="senha_antiga" name="senha_antiga"/>
+										<input type="password" id="senha_antiga" name="senha_antiga"/>
 									</label>
 								</div>
 		    				</div>
 							<div class="row">
     							<div class="large-12 columns" >
 									<label> Nova senha:
-										<input type="text" id="nova_senha" name="senha_antiga"/>
+										<input type="password" id="nova_senha" name="senha_nova"/>
+									</label>
+								</div>
+		    				</div>
+							<div class="row">
+    							<div class="large-12 columns" >
+									<label> Confirma a nova senha:
+										<input type="password" id="confirma_senha_nova" name="confirma_senha_nova"/>
 									</label>
 								</div>
 		    				</div>
@@ -190,7 +199,7 @@
 								</div>
 							</div>
 							<br>
-						<?php 
+						<?php
 							}
 						?>
 					</div>
