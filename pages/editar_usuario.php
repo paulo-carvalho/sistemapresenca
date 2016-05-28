@@ -14,16 +14,13 @@
 			$matr = $_SESSION['matricula'];
 	}
 
-	$msg_erro = "";
-	$msg_sucesso = "";
-
 	if(isset($_SESSION['erro_edicao'])) {
     	$msg_erro = $_SESSION['erro_edicao'];
 	}
 	$_SESSION['erro_edicao']="";
 
 	//Seleciona a permissão do usuário logado na página
-	$sql_controle = "SELECT permissao FROM usuarios WHERE matr=$matr;";
+	$sql_controle = "SELECT permissao FROM usuarios WHERE matr=$matr LIMIT 1;";
 	if (isset($sql_controle)) {
 		$controle = mysqli_query($conn, $sql_controle);
 	}
@@ -37,7 +34,7 @@
 
 	//QUERIES PARA PREENCHER FORMULÁRIO
 	//Pega os dados do usuário a ser editado
-	$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
+	$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr' LIMIT 1;";
 	if (isset($sql_usuario)) {
 		$usuario = mysqli_query($conn, $sql_usuario);
 	}
@@ -80,20 +77,30 @@
 	<div class="row">
 		<div class="large-12 columns">
 			<?php
-				if($_SESSION['erro_edicao'] != "")
-					echo "<div data-alert='' class='alert-box alert'>
-							".$_SESSION['erro_edicao']."
-						</div>";
-				$_SESSION['erro_edicao']="";
-
-				if($_SESSION['sucesso_edicao'] != "")
-					echo "<div data-alert='' class='alert-box success'>
-							".$_SESSION['sucesso_edicao']."
-						</div>";
-				$_SESSION['sucesso_edicao']="";
+				if(isset($_SESSION['msg_edicao']) && $_SESSION['msg_edicao'] > 0) {
+					switch ($_SESSION['msg_edicao']) {
+						case 1:
+							$msg_edicao = "Impossível alterar senha! Campo nova senha é obrigatório.";
+							break;
+						case 2:
+							$msg_edicao = "Nova senha não pode ser confirmada (valores diferentes).";
+							break;
+						case 3:
+							$msg_edicao = "Senha incorreta.";
+							break;
+						case 4:
+							$msg_edicao = "Problemas na conexão com o servidor. Tente novamente mais tarde.";
+							break;
+						default:
+							$msg_edicao = "Ocorreu um erro inesperado! Tente novamente mais tarde.";
+					}
+					echo "<div data-alert='' class='alert-box alert'>".$msg_edicao."</div>";
+				}
+				unset($_SESSION['msg_edicao']);
 			?>
 			<div class="panel">
 				<h3 class="text-center"><?php echo $user['nome']?></h3>
+				<h5 class="text-center"><small>Usuário criado em <?php echo $user['data_criacao']?></small></h5>
 				<br>
 				<div class="row">
 
@@ -111,9 +118,9 @@
     							<div class="large-6 columns" >
 									<label>Cargo: <span style="color: red;">*</span>
 										<select name="cargo" id="cargo" required title="Cargo é obrigatório">
-											<option value='Trainee'<?php if('Trainee' == $user['cargo']) echo "selected"?>>Trainee</option>
 											<option value='Diretor'<?php if('Diretor' == $user['cargo']) echo "selected"?>>Diretor</option>
 											<option value='Membro'<?php if('Membro' == $user['cargo']) echo "selected"?>>Membro</option>
+												<option value='Trainee'<?php if('Trainee' == $user['cargo']) echo "selected"?>>Trainee</option>
 										</select>
 									</label>
 		    					</div>

@@ -19,32 +19,30 @@
 	//Armazena o resultado da query acima no array permissao_sessao.
 	//O valor fica armazenado na posição permissao_sessao[0]
 	$permissao_sessao = mysqli_fetch_row($controle);
-	
+
 	if($permissao_sessao[0] == 3) { //Se o usuário for pós-júnior, não tem acesso ao sistema
 		header("Location: ../index.php");
 	}
-	
-	$msg_erro = "";
+
 	$msg_sucesso = "";
 
 	if(isset($_SESSION['sucesso_cadastro'])) {
     	$msg_sucesso = $_SESSION['sucesso_cadastro'];
-	} else if(isset($_SESSION['sucesso_edicao'])) {
-    	$msg_sucesso = $_SESSION['sucesso_edicao'];
+	} else if(isset($_SESSION['msg_edicao']) && $_SESSION['msg_edicao'] == 0) {
+    	$msg_sucesso = "Usuário alterado com sucesso!";
 	}
 	$_SESSION['sucesso_cadastro']="";
-	$_SESSION['sucesso_edicao']="";
+	$_SESSION['msg_edicao']="";
 
 	$matr = $_GET['id'];
-	//echo $matr;
 
 	$sql_usuario = "SELECT * FROM usuarios WHERE matr='$matr';";
-	if (isset($sql_usuario)) {	
+	if (isset($sql_usuario)) {
 		$result = mysqli_query($conn, $sql_usuario);
 	}
-	
+
 	$sql_diretoria = "SELECT nome_diretoria FROM usuarios JOIN diretorias ON diretoria=id_diretoria WHERE matr='$matr';";
-	if (isset($sql_diretoria)) {	
+	if (isset($sql_diretoria)) {
 		$result2 = mysqli_query($conn, $sql_diretoria);
 	} else
 		echo 'Erro: ' . mysqli_error($conn);
@@ -54,7 +52,7 @@
 	}
 
 	$sql_permissao = "SELECT nome_permissoes FROM usuarios JOIN permissoes ON permissao=id_permissoes WHERE matr='$matr';";
-	if (isset($sql_permissao)) {	
+	if (isset($sql_permissao)) {
 		$result3 = mysqli_query($conn, $sql_permissao);
 	} else
 		echo 'Erro: ' . mysqli_error($conn);
@@ -64,7 +62,7 @@
 	}
 
 	while ($row = mysqli_fetch_assoc($result)) {
-					
+
 
 ?>
 
@@ -88,15 +86,11 @@
 	<div class="row">
 		<div class="large-12 columns">
 			<?php
-				if($msg_erro != "")
-					echo "<div data-alert='' class='alert-box alert'>
-							".$msg_erro."
-						</div>";
-
-				if($msg_sucesso != "")
+				if(!empty($msg_sucesso))
 					echo "<div data-alert='' class='alert-box success'>
 							".$msg_sucesso."
 						</div>";
+				$msg_sucesso = "";
 			?>
 			<div class="panel">
 				<h3 class="text-center"><?php echo $row['nome']?></h3>
@@ -107,14 +101,14 @@
 					<div class="large-8 push-2 columns">
 
 						<form>
-							<label class="fn"><strong> Número matrícula: </strong><input type="text" id="matricula" value='<?php echo $row['matr']?>' disabled /> </label> 
+							<label class="fn"><strong> Número matrícula: </strong><input type="text" id="matricula" value='<?php echo $row['matr']?>' disabled /> </label>
 							<label> Nome Completo: <input type="text" id="name" value='<?php echo $row['nome']?>' disabled/> </label>
 							<label> Email Pessoal: <input type="text" id="email" value='<?php echo $row['email_pessoal']?>' disabled/> </label>
 							<label> Email Profissional: <input type="text" id="email" value='<?php echo $row['email_profissional']?>' disabled/> </label>
 
 							<div class="row">
     							<div class="large-6 columns" >
-									<label>Cargo: 
+									<label>Cargo:
 										<select disabled>
 											<option value="" ><?php echo $row['cargo']?></option>
 										</select>
@@ -127,8 +121,8 @@
 										</select>
 									</label>
 								</div>
-							</div>		
-							
+							</div>
+
 							<div class="row">
     							<div class="large-4 columns" >
 		    						<label> Ingresso na Faculdade: <input type="text" value='<?php echo $row['ingresso_faculdade']?>' disabled/></label>
@@ -141,7 +135,7 @@
 		    					</div>
 		    				</div>
 
-		    									
+
 
 							<?php
 								//Apenas o administrador pode ver a permissão do usuário
@@ -166,19 +160,19 @@
 								//Apenas o administrador pode Editar o usuário
 								if($permissao_sessao[0] == 1) {
 							?>
-									
+
 								<div class="large-6 columns text-left">
 									<a href="editar_usuario.php?id=<?php echo $matr?>"class="small button">Editar usuário</a>
 								</div>
-									
+
 							<?php
 								}
 							?>
-								
+
 
 							</div>
 						</form>
-						<?php 
+						<?php
 							}
 						?>
 					</div>
