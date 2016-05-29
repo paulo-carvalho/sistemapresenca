@@ -14,7 +14,10 @@
 		// definir dependencias da query preparada
 		$stmt->bind_param("ii", $sessaoMatricula, $alterarConectado);
 
-		$sessaoMatricula = $_SESSION['matricula'];
+		if (isset($_POST['matricula']))
+			$sessaoMatricula = $_POST['matricula'];
+		else
+			$sessaoMatricula = $_SESSION['matricula'];
 		if (isset($_POST['alterarConectado']))
 			$alterarConectado = ($_POST['alterarConectado'] == 0) ? 1 : 0;
 		else
@@ -53,18 +56,17 @@
 	    array_push($membros["nome"], $nMembro);
 	}
 
-// VERIFICAR SE USUARIO BATEU PONTO OU NAO
+// VERIFICAR SE USUARIO BATEU PONTO OU NAO E SE ELE E ADMINISTRADOR
 	// preparar query
-	$stmt = $conn->prepare("SELECT `conectado`, `nome` FROM `usuarios` WHERE `matr`=?");
+	$stmt = $conn->prepare("SELECT `conectado`, `nome`, `permissao` FROM `usuarios` WHERE `matr`=?");
 	// definir dependencias da query preparada
 	$stmt->bind_param("s", $_SESSION['matricula']);
 	$stmt->execute();
 
-	$stmt->bind_result($conectadoUsuario, $nomeUsuario);
+	$stmt->bind_result($conectadoUsuario, $nomeUsuario, $permissaoUsuario);
 	$stmt->fetch();
 
 	$stmt->close();
- 	//$conn->close();
 ?>
 <html class="no-js" lang="en">
 <head>
@@ -138,7 +140,13 @@
 							<tr>
 								<td><?php echo $membros["matricula"][$i]; ?></td>
 								<td><?php echo $membros["nome"][$i]; ?></td>
-								<td class="text-center"><i class="fi-power"></td>
+								<td class="text-center">
+									<a href="#" class="botaoForcarBaterPonto"
+										value="<?php echo $membros["matricula"][$i]; ?>"
+										data-reveal-id="forcarBaterPonto">
+										<i class="fi-power"></i>
+									</a>
+								</td>
 							</tr>
 
 							<?php
@@ -165,7 +173,6 @@
 				<div class="large-6 medium-6 small-6 columns">
 				<form name="baterPonto" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
 					<input type="hidden" name="alterarConectado" value="<?php echo $conectadoUsuario; ?>">
-					<!-- <a href="#" class="button expand">Sim</a> -->
 					<button class="button expand" name="Sim" type="submit">Sim</button>
 				</form>
 				</div>
@@ -176,6 +183,29 @@
 
 			<a class="close-reveal-modal" aria-label="Close">&#215;</a>
 		</div>
+		<!-- fim modal -->
+		<!-- modal para forcar acao de bater ponto de algum usuario listado -->
+		<div id="forcarBaterPonto" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+			<h2 id="modalTitle">Bater Ponto</h2>
+			<p class="lead">Você acionou o botão para retirar <span class="matriculaForcarBaterPonto"></span> da empresa.</p>
+			<p>Confirma essa ação?</p>
+
+			<div class="row">
+				<div class="large-6 medium-6 small-6 columns">
+				<form name="baterPonto" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
+					<input type="hidden" name="alterarConectado" value="0">
+					<input type="hidden" name="matricula" id="matriculaForcarBaterPonto" value="">
+					<button class="button expand" name="Sim" type="submit">Sim</button>
+				</form>
+				</div>
+				<div class="large-6 medium-6 small-6 columns">
+					<a href="#" class="button expand close-modal">Não</a>
+				</div>
+			</div>
+
+			<a class="close-reveal-modal" aria-label="Close">&#215;</a>
+		</div>
+		<!-- fim modal -->
 		<script src="../js/vendor/modernizr.js"></script>
 		<script src="../js/vendor/jquery.js"></script>
 		<script src="../js/foundation/foundation.js"></script>
@@ -187,6 +217,13 @@
 			// para fechar o modal de bater ponto
 			$('.close-modal').click(function() {
 				$('#confirmarBaterPonto').foundation('reveal', 'close');
+			});
+
+			// ao clicar em logoff, identificar o numero de matricula forcado
+			// usado para envio de form, retirando membro da empresa
+			// usado para exibir no modal de forcar saida do membro
+			$('.botaoForcarBaterPonto').click(function() {
+				$('#matriculaForcarBaterPonto').val($(this).val());
 			});
 		</script>
 	</body>
