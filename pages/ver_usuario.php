@@ -31,8 +31,9 @@
 	} else if(isset($_SESSION['msg_edicao']) && $_SESSION['msg_edicao'] == 0) {
     	$msg_sucesso = "Usuário alterado com sucesso!";
 	}
-	$_SESSION['sucesso_cadastro']="";
-	$_SESSION['msg_edicao']="";
+	
+	unset($_SESSION['sucesso_cadastro']);
+	unset($_SESSION['msg_edicao']);
 
 	$matr = $_GET['id'];
 

@@ -51,8 +51,6 @@
 
 
 	while ($user = mysqli_fetch_assoc($usuario)) {
-
-
 ?>
 <!doctype html>
 <html class="no-js" lang="en">
@@ -126,7 +124,7 @@
 		    					</div>
 		    					<div class="large-6 columns" >
 		    						<label >Diretoria:
-										<select name="diretoria" id="diretoria" required title="Diretoria é obrigatório">
+										<select name="diretoria" id="diretoria" title="Diretoria é obrigatório" required>
 		    								<?php
 				    							while ($row = mysqli_fetch_assoc($diretorias)) {
 				    						?>
@@ -169,46 +167,50 @@
 									?>
 								</select>
 							</label>
-							<hr>
-							<div class="row">
-    							<div class="large-12 columns" >
-    								<center><h5 class="subheader">Alterar Senha</h5></center>
-		    					</div>
-		    				</div>
-		    				<div class="row">
-    							<div class="large-12 columns" >
-									<label> Senha antiga:
-										<input type="password" id="senha_antiga" name="senha_antiga"/>
-									</label>
-								</div>
-		    				</div>
-							<div class="row">
-    							<div class="large-12 columns" >
-									<label> Nova senha:
-										<input type="password" id="nova_senha" name="senha_nova"/>
-									</label>
-								</div>
-		    				</div>
-							<div class="row">
-    							<div class="large-12 columns" >
-									<label> Confirma a nova senha:
-										<input type="password" id="confirma_senha_nova" name="confirma_senha_nova"/>
-									</label>
-								</div>
-		    				</div>
-
-							<div class="row">
-								<div class="large-6 columns text-right">
-									<a href="listar_usuarios.php" class="small button">Cancelar</a>
-								</div>
-								<div class="large-6 columns text-left">
-									<button type="submit" id="salvar_edicao" class="small button">Salvar edição</button>
-								</div>
-							</div>
-							<br>
 						<?php
-							}
+							// opcao de editar senha permitido apenas para o proprio usuario
+							if($user['matr'] == $_SESSION['matricula'])
+								echo"
+									<hr>
+									<div class='row'>
+		    							<div class='large-12 columns' >
+		    								<center><h5 class='subheader'>Alterar Senha</h5></center>
+				    					</div>
+				    				</div>
+				    				<div class='row'>
+		    							<div class='large-12 columns' >
+											<label> Senha antiga:
+												<input type='password' id='senha_antiga' name='senha_antiga'/>
+											</label>
+										</div>
+				    				</div>
+									<div class='row'>
+		    							<div class='large-12 columns' >
+											<label> Nova senha:
+												<input type='password' id='nova_senha' name='senha_nova'/>
+											</label>
+										</div>
+				    				</div>
+									<div class='row'>
+		    							<div class='large-12 columns' >
+											<label> Confirma a nova senha:
+												<input type='password' id='confirma_senha_nova' name='confirma_senha_nova'/>
+											</label>
+										</div>
+				    				</div>";
 						?>
+									<div class='row'>
+										<div class='large-6 columns text-right'>
+											<a href='listar_usuarios.php' class='small button'>Cancelar</a>
+										</div>
+										<div class='large-6 columns text-left'>
+											<button type='submit' id='salvar_edicao' class='small button'>Salvar edição</button>
+										</div>
+									</div>
+									<br>
+				<?php
+					} //fim while ($user = mysqli_fetch_assoc($usuario)) {
+				?>
 					</div>
 				</div>
 

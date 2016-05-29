@@ -22,7 +22,7 @@
 	//Armazena o resultado da query acima no array permissao_sessao.
 	//O valor fica armazenado na posição permissao_sessao[0]
 	$permissao_sessao = mysqli_fetch_row($controle);
-	
+
 	if($permissao_sessao[0] == 3) { //Se o usuário for pós-júnior, não tem acesso ao sistema
 		header("Location: ../index.php");
 	} else if($permissao_sessao[0] != 1) { //Se o usuário não for administrador, não pode cadastrar novo usuário
@@ -43,7 +43,7 @@
 	/* PARAMETROS RECEBIDOS PELO FORMULÁRIO DE CADASTRO*/
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if(isset($_POST['nome']))
-			$nome = $_POST['nome'];			
+			$nome = $_POST['nome'];
 
 		if(isset($_POST['email_pessoal']))
 			$email_pessoal = $_POST['email_pessoal'];
@@ -52,25 +52,25 @@
 			$email_profissional = $_POST['email_profissional'];
 
 		if(isset($_POST['cargo']))
-			$cargo = $_POST['cargo'];			
+			$cargo = $_POST['cargo'];
 
 		if(isset($_POST['diretoria']))
-			$diretoria = $_POST['diretoria'];			
+			$diretoria = $_POST['diretoria'];
 
 		if(isset($_POST['ingresso_faculdade']))
 			$ingresso_faculdade = $_POST['ingresso_faculdade'];
 
 		if(isset($_POST['ingresso_empresa']))
-			$ingresso_empresa = $_POST['ingresso_empresa'];	
+			$ingresso_empresa = $_POST['ingresso_empresa'];
 
 		if(isset($_POST['data_desligamento']))
-			$data_desligamento = $_POST['data_desligamento'];			
+			$data_desligamento = $_POST['data_desligamento'];
 
 		if(isset($_POST['matr']))
-			$matr = $_POST['matr'];			
+			$matr = $_POST['matr'];
 
 		if(isset($_POST['permissao']))
-			$permissao = $_POST['permissao'];			
+			$permissao = $_POST['permissao'];
 
 		$conectado = '0';
 
@@ -92,22 +92,22 @@
 		$result_matricula = mysqli_query($conn, $matricula);
 		while ($row = mysqli_fetch_assoc($result_matricula)) {
 			if($matr == $row['matr']) {
-				$fail=TRUE; 
+				$fail=TRUE;
 				$msg_erro = "Usuário já cadastrado!";;
 			}
-		}		
+		}
 
 		if ($fail != TRUE) {
-			//Se as senhas não coincidirem, exibe mensagem de erro. 
+			//Se as senhas não coincidirem, exibe mensagem de erro.
 			if($senha != $confirm_passw) {
 				$msg_erro = "Senhas não coincidem.";
 			}
-			else {	
+			else {
 				$sql_cadastrar = "INSERT INTO usuarios (matr, nome, senha, email_pessoal, email_profissional, diretoria, cargo, ingresso_faculdade, ingresso_empresa, permissao, conectado, data_criacao, data_desligamento) VALUES('".$matr."', '".$nome."', '".$senha."', '".$email_pessoal."', '".$email_profissional."', '".$diretoria."', '".$cargo."', '".$ingresso_faculdade."', '".$ingresso_empresa."', '".$permissao."', '".$conectado."',   NOW() , '".$data_desligamento."');";
 			}
 		}
-			 
-		//Cadastra novo usuário no banco 
+
+		//Cadastra novo usuário no banco
 		if (isset($sql_cadastrar)) {
 			if (mysqli_query($conn, $sql_cadastrar)) {
 				$msg_sucesso = "Usuário cadastrado com sucesso!";
@@ -121,14 +121,14 @@
 
 	//Usado no <select> das diretorias
 	$sql_diretorias = "SELECT id_diretoria, nome_diretoria FROM diretorias;";
-	if (isset($sql_diretorias)) {	
+	if (isset($sql_diretorias)) {
 			$diretorias = mysqli_query($conn, $sql_diretorias);
 		} else
 			echo 'Erro na query sql_diretorias';
 
 	//Usado no <select> das permissões
 	$sql_permissoes = "SELECT id_permissoes, nome_permissoes FROM permissoes;";
-	if (isset($sql_permissoes)) {	
+	if (isset($sql_permissoes)) {
 			$permissoes = mysqli_query($conn, $sql_permissoes);
 		} else
 			echo 'Erro: na query sql_permissoes';
@@ -178,23 +178,23 @@
 						<form id="cadastro" name="cadastro" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" data-abide>
 
   							<div class="name-field">
-								<label for="name"> Nome Completo: <span style="color: red;">*</span> 
+								<label for="name"> Nome Completo: <span style="color: red;">*</span>
 									<input type="text" id="nome" name="nome" required title="Nome é obrigatório" value='<?php echo $nome?>' autocomplete="off" />
 								</label>
 	    					</div>
 
-							<label for="email"> Email Pessoal: <span style="color: red;">*</span> 
-								<input type="email" id="email_pessoal" name="email_pessoal" value='<?php echo $email_pessoal?>'required autocomplete="off" />
+							<label for="email"> Email Pessoal: <span style="color: red;">*</span>
+								<input type="email" id="email_pessoal" name="email_pessoal" value='<?php echo $email_pessoal?>'required title="Email Pessoal é campo obrigatório" autocomplete="off" />
 							</label>
 
-    						<label for="email"> Email Profissional: 
+    						<label for="email"> Email Profissional:
 								<input type="email" id="email_profissional" name="email_profissional" value='<?php echo $email_profissional?>' autocomplete="off" />
 							</label>
 
 							<div class="row">
     							<div class="large-6 columns" >
-									<label>Cargo: <span style="color: red;">*</span> 
-										<select name="cargo" id="cargo" required>
+									<label>Cargo: <span style="color: red;">*</span>
+										<select name="cargo" id="cargo" required title="Cargo é um campo obrigatório">
 											<option value='Trainee'<?php if('Trainee' == $cargo) echo "selected"?>>Trainee</option>
 											<option value='Diretor'<?php if('Diretor' == $cargo) echo "selected"?>>Diretor</option>
 											<option value='Membro'<?php if('Membro' == $cargo) echo "selected"?>>Membro</option>
@@ -205,19 +205,19 @@
 		    					<div class="large-6 columns" >
 		    						<label for="diretoria">Diretoria:
 										<select name="diretoria" id="diretoria" required>
-		    								<?php 
+		    								<?php
 				    							while ($row = mysqli_fetch_assoc($diretorias)) {
-				    						?>	
+				    						?>
 				    								<option value='<?php echo $row['id_diretoria']?>'
-				    									<?php 
-				    										if($diretoria != "") { //Se o form já foi submetido ainda
-				    											if($row['id_diretoria'] == $diretoria) //Deixa selecionado a opção 
+				    									<?php
+				    										if($diretoria != "") { //Se o form ja foi submetido ainda
+				    											if($row['id_diretoria'] == $diretoria) //Deixa selecionado a opcao
 				    												echo "selected";
-				    										} 
+				    										}
 				    										else if($row['id_diretoria'] == '6') echo "selected"?>><?php echo $row['nome_diretoria']?></option>
-				    						<?php	
-				    							}				
-											?> 
+				    						<?php
+				    							}
+											?>
 										</select>
 									</label>
 								</div>
@@ -226,7 +226,7 @@
 
 							<div class="row">
     							<div class="large-4 columns" >
-		    						<label for="email">  Ingresso na Faculdade: <span style="color: red;">*</span> 
+		    						<label for="email">  Ingresso na Faculdade: <span style="color: red;">*</span>
 										<input type="text"  id="ingresso_faculdade" name="ingresso_faculdade" value='<?php echo $ingresso_faculdade?>' placeholder="Ano/Semestre" pattern="[1-2]{1}[0|9]{1}[0-9]{2}\/[1,2]{1}" title="Insira no formato 2016/1" autocomplete="off"/>
 									</label>
 		    					</div>
@@ -243,38 +243,38 @@
 		    				</div>
 
 
-    						
+
 							<hr>
 
-							<label> Número de matrícula: <span style="color: red;">*</span> 
-								<input type="text" name="matr" id="matr" required pattern="[0-9]{10}" title="A matrículo deve possuir 10 caracteres" value='<?php echo $matr?>' autocomplete="off"/>
+							<label> Número de matrícula: <span style="color: red;">*</span>
+								<input type="text" name="matr" id="matr" required pattern="[0-9]{10}" title="A matrícula deve possuir 10 caracteres" value='<?php echo $matr?>' autocomplete="off"/>
 							</label>
 
-							<label> Permissão: <span style="color: red;">*</span> 
+							<label> Permissão: <span style="color: red;">*</span>
 								<select name="permissao" id="permissao" required>
-									<?php 
+									<?php
 		    							while ($row = mysqli_fetch_assoc($permissoes)) {
-		    						?>		
+		    						?>
 		    								<option value='<?php echo $row['id_permissoes']?>'
-		    									<?php 
+		    									<?php
 		    										if($row['id_permissoes'] == $permissao) {
 		    											echo "selected";}?> > <?php echo $row['nome_permissoes']?></option>
-		    						<?php	
-		    							}				
-									?> 
+		    						<?php
+		    							}
+									?>
 								</select>
 							</label>
     						<small class="error">Permissão é um campo obrigatório.</small>
 
-							<label for="passw"> Senha: <span style="color: red;">*</span> 
-								<input type="password" name="senha" id="senha" pattern=".{6,}" title="Insira seis ou mais caracteres" required/> 
+							<label for="passw"> Senha: <span style="color: red;">*</span>
+								<input type="password" name="senha" id="senha" pattern=".{6,}" title="Insira seis ou mais caracteres" required/>
 							</label>
     						<small class="error">Senha é um campo obrigatório.</small>
 
-							<label for="confirm_passw"> Confirmar senha: <span style="color: red;">*</span> 
-								<input type="password" data-equalto="senha" name="confirm_passw" id="confirm_passw" required /> 
+							<label for="confirm_passw"> Confirmar senha: <span style="color: red;">*</span>
+								<input type="password" data-equalto="senha" name="confirm_passw" id="confirm_passw" required title="Senhas devem coincidir" />
 							</label>
-    						<small class="error">As senhas devem ser iguais.</small>	
+    						<small class="error">As senhas devem ser iguais.</small>
 
 						</div>
 					</div>
@@ -308,7 +308,7 @@
 	<script type="text/javascript">
 		$(document).foundation();
 	</script>
-	
+
 	<!-- Datepicker para campos com data. Repositorio: https://github.com/najlepsiwebdesigner/foundation-datepicker -->
 	<script src="../js/foundation-datepicker/foundation-datepicker.min.js"></script>
 	<script src="../js/foundation-datepicker/locales/foundation-datepicker.pt-br.js"></script>
