@@ -12,6 +12,24 @@
 	$msg_erro = "";
 	$msg_sucesso = "";
 
+	$get_data = "SELECT * FROM horarios WHERE matr_usuario=$matricula;";
+
+	if (isset($get_data)) {
+		$result = mysqli_query($conn, $get_data);
+		
+		$number_of_rows = mysqli_num_rows($result);
+
+		if($number_of_rows == 2) {
+			$horarios_user = array();
+			for($i=1; $i<=2; $i++) {
+				$row = mysqli_fetch_assoc($result);
+				$id_horario[$i] = $row['id_horario'];
+				$dia_semana[$i] = $row['dia_semana'];
+				$horario[$i] = $row['horario'];
+			}
+		} 
+	}
+
 	/* PARAMETROS */
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if(isset($_POST['horario1']))
@@ -34,17 +52,15 @@
 		else
 			$dia_horario2 = "";
 
+		
 		$sql_verifica = "SELECT * FROM horarios WHERE matr_usuario=$matricula;";
-
 
 		if (isset($sql_verifica)) {
 			$result_sql_verifica = mysqli_query($conn, $sql_verifica);
 		}
 
-		$count = mysqli_num_rows($result_sql_verifica);
-
 		//Se não houverem registros na tabela horários para esse usuário, insere novos dados. 
-		if($count == 0) {
+		if($number_of_rows == 0) {
 			$sql_horario1 = "INSERT INTO horarios (matr_usuario, dia_semana, horario) VALUES ('".$matricula."', '".$dia_horario1."', '".$horario1."'); ";
 			$sql_horario2 = "INSERT INTO horarios (matr_usuario, dia_semana, horario) VALUES ('".$matricula."', '".$dia_horario2."', '".$horario2."'); ";
 
@@ -57,10 +73,11 @@
 					$msg_erro = "Erro ao atualizar os horários!";
 			}
 		}
+		
 		//Se o usuário já tiver horários cadastrados, atualiza
-		else if($count == 2) {
+		else if($number_of_rows == 2) {
 			$horarios = array();
-			for($i=1; $i<=$count; $i++) {
+			for($i=1; $i<=2; $i++) {
 				$row = mysqli_fetch_assoc($result_sql_verifica);
 				$horarios[$i] = $row['id_horario'];
 			}
@@ -72,6 +89,10 @@
 			if (isset($sql_horario1) && isset($sql_horario2)) {
 				if (mysqli_query($conn, $sql_horario1) && mysqli_query($conn, $sql_horario2)) {
 					$msg_sucesso = "Horários Fixos Atualizados!";
+					$dia_semana[1] = $dia_horario1;
+					$dia_semana[2] = $dia_horario2;
+					$horario[1] = $horario1;
+					$horario[2] = $horario2;
 				}
 				else
 					//$msg_erro = "Erro ao atualizar os horários!";
@@ -86,6 +107,7 @@
 <html class="no-js" lang="en">
 <head>
 	<meta charset="utf-8" />
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Cadastro</title>
 	<link rel="stylesheet" href="../css/foundation.css" />
@@ -135,43 +157,43 @@
     								<h6 class="text-center">Horário 2</h6>
     							</div>
     						</div>
-
     						<div class="row">
     							<div class="large-3 columns" >
 									<select name="dia_horario1" id="dia_horario1" required>
-										<option value="Segunda">Segunda</option>
-										<option value="Terça">Terça</option>
-										<option value="Quarta">Quarta</option>
-										<option value="Quinta">Quinta</option>
-										<option value="Sexta">Sexta</option>
+										<option value='Segunda' <?php if ($dia_semana[1] == 'Segunda') echo "selected"?>>Segunda</option>
+										<option value='Terça' <?php if ($dia_semana[1] == 'Terça') echo "selected"?>>Terça</option>
+										<option value='Quarta' <?php if ($dia_semana[1] == 'Quarta') echo "selected"?>>Quarta</option>
+										<option value='Quinta' <?php if ($dia_semana[1] == 'Quinta') echo "selected"?>>Quinta</option>
+										<option value='Sexta' <?php if ($dia_semana[1] == 'Sexta') echo "selected"?>>Sexta</option>
 									</select>
 				        		</div>
 	    						<div class="large-3 columns">
 									<div class="bootstrap-timepicker">
-				            			<input id="horario1" name="horario1" type="text" class="input-small" required>
+				            			<input id="horario1" name="horario1" type="text" class="input-small" value=<?php echo $horario[1]?> required>
 				            			<i class="icon-time"></i>
 				        			</div>
 				        		</div>
 				        		<div class="large-3 columns">
 									<select name="dia_horario2" id="dia_horario2" required>
-										<option value="Segunda">Segunda</option>
-										<option value="Terça">Terça</option>
-										<option value="Quarta">Quarta</option>
-										<option value="Quinta">Quinta</option>
-										<option value="Sexta">Sexta</option>
+										<option value='Segunda' <?php if ($dia_semana[2] == 'Segunda') echo "selected"?>>Segunda</option>
+										<option value='Terça' <?php if ($dia_semana[2] == 'Terça') echo "selected"?>>Terça</option>
+										<option value='Quarta' <?php if ($dia_semana[2] == 'Quarta') echo "selected"?>>Quarta</option>
+										<option value='Quinta' <?php if ($dia_semana[2] == 'Quinta') echo "selected"?>>Quinta</option>
+										<option value='Sexta' <?php if ($dia_semana[2] == 'Sexta') echo "selected"?>>Sexta</option>
 									</select>
 				        		</div>
 				        		<div class="large-3 columns">
 									<div class="bootstrap-timepicker">
-				            			<input id="horario2" name="horario2" type="text" class="input-small" required>
+				            			<input id="horario2" name="horario2" type="text" class="input-small" value=<?php echo $horario[2]?> required>
 				            			<i class="icon-time"></i>
 				        			</div>
 				        		</div>
 				        	</div>
 
+				        	
+
 						</div>
 					</div>
-
 					<br>
 
 					<div class="row">
@@ -204,7 +226,7 @@
 	<!-- Timepicker. Fonte: http://jdewit.github.io/bootstrap-timepicker/ -->
     <script type="text/javascript" src="../js/bootstrap-timepicker/bootstrap.min.js"></script>
     <script type="text/javascript" src="../js/bootstrap-timepicker/bootstrap-timepicker.min.js"></script>
-	 <script type="text/javascript">
+	<script type="text/javascript">
 	        $('#horario1').timepicker({
 	            template: false,
 	            showInputs: false,
@@ -219,9 +241,9 @@
 	            showMeridian: false
 	        });
 	  </script>
-</body>
-<?php
-	//Encerra a conexão com o banco
-	mysqli_close($conn);
-?>
+	</body>
+	<?php
+		//Encerra a conexão com o banco
+		mysqli_close($conn);
+	?>
 </html>
