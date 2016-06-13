@@ -141,9 +141,18 @@
 								<td><?php echo $membros["matricula"][$i]; ?></td>
 								<td><?php echo $membros["nome"][$i]; ?></td>
 								<td class="text-center">
-									<a href="#" class="botaoForcarBaterPonto"
-										value="<?php echo $membros["matricula"][$i]; ?>"
-										data-reveal-id="forcarBaterPonto">
+								<?php
+									if($permissaoUsuario == 1 || $membros["matricula"][$i] == $_SESSION['matricula']) {
+								?>
+									<a href="#"
+										class="botaoForcarBaterPonto"
+										id="<?php echo $membros["matricula"][$i]; ?>"
+										name="<?php echo $membros["nome"][$i]; ?>"
+										data-reveal-id="forcarBaterPonto"
+										onclick="pegarMatricula(this.id, this.name)">
+								<?php
+									}
+								?>
 										<i class="fi-power"></i>
 									</a>
 								</td>
@@ -193,8 +202,8 @@
 			<div class="row">
 				<div class="large-6 medium-6 small-6 columns">
 				<form name="baterPonto" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
-					<input type="hidden" name="alterarConectado" value="0">
-					<input type="hidden" name="matricula" id="matriculaForcarBaterPonto" value="">
+					<input type="hidden" name="alterarConectado" value="1">
+					<input type="hidden" name="matricula" class="matriculaForcarBaterPonto" value="">
 					<button class="button expand" name="Sim" type="submit">Sim</button>
 				</form>
 				</div>
@@ -219,12 +228,15 @@
 				$('#confirmarBaterPonto').foundation('reveal', 'close');
 			});
 
-			// ao clicar em logoff, identificar o numero de matricula forcado
-			// usado para envio de form, retirando membro da empresa
-			// usado para exibir no modal de forcar saida do membro
-			$('.botaoForcarBaterPonto').click(function() {
-				$('#matriculaForcarBaterPonto').val($(this).val());
-			});
+			// ao clicar em logoff, identificar o numero de matricula forcado.
+			// usado para envio de form, retirando membro da empresa.
+			// usado para exibir no modal de forcar saida do membro.
+			function pegarMatricula(matricula, nome) {
+				// input hidden de form
+				$("input.matriculaForcarBaterPonto").val(matricula);
+				// texto de exibicao
+				$("span.matriculaForcarBaterPonto").text(matricula+" - "+nome);
+			}
 		</script>
 	</body>
 
