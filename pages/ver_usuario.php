@@ -136,6 +136,15 @@
 		    					</div>
 		    				</div>
 
+		    				<div class="row">
+    							<div class="large-6 columns" >
+		    						<label> Facebook: <input type="text" value='<?php echo $row['facebook']?>' disabled/></label>
+		    					</div>
+		    					<div class="large-6 columns" >
+		    						<label> Linkedin: <input type="text" value='<?php echo $row['linkedin']?>' disabled/> </label>
+		    					</div>
+		    				</div>
+
 
 
 							<?php

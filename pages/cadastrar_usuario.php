@@ -39,6 +39,9 @@
 	$data_desligamento = "";
 	$matr = "";
 	$permissao = "";
+	$facebook = "";
+	$linkedin = "";
+	
 
 	/* PARAMETROS RECEBIDOS PELO FORMULÁRIO DE CADASTRO*/
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -65,6 +68,14 @@
 
 		if(isset($_POST['data_desligamento']))
 			$data_desligamento = $_POST['data_desligamento'];
+
+		if(isset($_POST['facebook']))
+			$facebook = $_POST['facebook'];
+
+		if(isset($_POST['linkedin']))
+			$linkedin = $_POST['linkedin'];
+
+		var_dump($facebook, $linkedin);
 
 		if(isset($_POST['matr']))
 			$matr = $_POST['matr'];
@@ -238,6 +249,19 @@
 		    					<div class="large-4 columns" >
 		    						<label for="email"> Data de desligamento:
 										<input type="text"  id="data_desligamento" name="data_desligamento" class="fdatepicker" value='<?php echo $data_desligamento?>' autocomplete="off"/>
+									</label>
+		    					</div>
+		    				</div>
+
+		    				<div class="row">
+    							<div class="large-6 columns" >
+		    						<label for="email">  Facebook:
+										<input type="text"  id="facebook" name="facebook" value='<?php echo $facebook?>'
+									</label>
+		    					</div>
+		    					<div class="large-6 columns" >
+		    						<label for="email"> Linkedin:
+										<input type="text" id="linkedin" name="linkedin" value='<?php echo $linkedin?>' autocomplete="off" />
 									</label>
 		    					</div>
 		    				</div>
