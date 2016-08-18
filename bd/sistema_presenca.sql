@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 05, 2016 at 02:37 PM
--- Server version: 5.7.9
--- PHP Version: 7.0.0
+-- Generation Time: 18-Ago-2016 às 19:07
+-- Versão do servidor: 5.7.9
+-- PHP Version: 5.6.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -19,13 +19,11 @@ SET time_zone = "+00:00";
 --
 -- Database: `sistema_presenca`
 --
-CREATE DATABASE IF NOT EXISTS `sistema_presenca` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `sistema_presenca`;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `diretorias`
+-- Estrutura da tabela `diretorias`
 --
 
 DROP TABLE IF EXISTS `diretorias`;
@@ -36,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `diretorias` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `diretorias`
+-- Extraindo dados da tabela `diretorias`
 --
 
 INSERT INTO `diretorias` (`id_diretoria`, `nome_diretoria`) VALUES
@@ -49,7 +47,7 @@ INSERT INTO `diretorias` (`id_diretoria`, `nome_diretoria`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `evento`
+-- Estrutura da tabela `evento`
 --
 
 DROP TABLE IF EXISTS `evento`;
@@ -65,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `evento` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COMMENT='Tabela para registrar todo e qualquer tipo de evento não presencial que conta nas horas presenciais do membro (eventos MEJ).';
 
 --
--- Dumping data for table `evento`
+-- Extraindo dados da tabela `evento`
 --
 
 INSERT INTO `evento` (`id_evento`, `nome_evento`, `data_inicio`, `data_fim`, `observacoes`, `matr`) VALUES
@@ -74,7 +72,7 @@ INSERT INTO `evento` (`id_evento`, `nome_evento`, `data_inicio`, `data_fim`, `ob
 -- --------------------------------------------------------
 
 --
--- Table structure for table `horarios`
+-- Estrutura da tabela `horarios`
 --
 
 DROP TABLE IF EXISTS `horarios`;
@@ -88,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `horarios` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `horarios`
+-- Extraindo dados da tabela `horarios`
 --
 
 INSERT INTO `horarios` (`id_horario`, `matr_usuario`, `dia_semana`, `horario`, `tipo`) VALUES
@@ -116,7 +114,7 @@ INSERT INTO `horarios` (`id_horario`, `matr_usuario`, `dia_semana`, `horario`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `permissoes`
+-- Estrutura da tabela `permissoes`
 --
 
 DROP TABLE IF EXISTS `permissoes`;
@@ -127,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `permissoes` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `permissoes`
+-- Extraindo dados da tabela `permissoes`
 --
 
 INSERT INTO `permissoes` (`id_permissoes`, `nome_permissoes`) VALUES
@@ -138,7 +136,7 @@ INSERT INTO `permissoes` (`id_permissoes`, `nome_permissoes`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `presenca`
+-- Estrutura da tabela `presenca`
 --
 
 DROP TABLE IF EXISTS `presenca`;
@@ -152,7 +150,7 @@ CREATE TABLE IF NOT EXISTS `presenca` (
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1 COMMENT='Tabela para registrar os momentos que o membro bate ponto: entrando e saindo da empresa.';
 
 --
--- Dumping data for table `presenca`
+-- Extraindo dados da tabela `presenca`
 --
 
 INSERT INTO `presenca` (`id_presenca`, `matr`, `data`, `entrada`) VALUES
@@ -172,7 +170,7 @@ INSERT INTO `presenca` (`id_presenca`, `matr`, `data`, `entrada`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `presenca_reuniao`
+-- Estrutura da tabela `presenca_reuniao`
 --
 
 DROP TABLE IF EXISTS `presenca_reuniao`;
@@ -183,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `presenca_reuniao` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `presenca_reuniao`
+-- Extraindo dados da tabela `presenca_reuniao`
 --
 
 INSERT INTO `presenca_reuniao` (`id_reuniao`, `matr`) VALUES
@@ -195,7 +193,7 @@ INSERT INTO `presenca_reuniao` (`id_reuniao`, `matr`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `reuniao_geral`
+-- Estrutura da tabela `reuniao_geral`
 --
 
 DROP TABLE IF EXISTS `reuniao_geral`;
@@ -208,7 +206,7 @@ CREATE TABLE IF NOT EXISTS `reuniao_geral` (
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `reuniao_geral`
+-- Extraindo dados da tabela `reuniao_geral`
 --
 
 INSERT INTO `reuniao_geral` (`id_reuniao`, `data_inicio`, `data_fim`, `detalhes`) VALUES
@@ -219,7 +217,7 @@ INSERT INTO `reuniao_geral` (`id_reuniao`, `data_inicio`, `data_fim`, `detalhes`
 -- --------------------------------------------------------
 
 --
--- Table structure for table `usuarios`
+-- Estrutura da tabela `usuarios`
 --
 
 DROP TABLE IF EXISTS `usuarios`;
@@ -237,6 +235,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `conectado` int(11) NOT NULL COMMENT '1=CONECTADO; 0=NÃO CONECTADO',
   `data_criacao` datetime NOT NULL,
   `data_desligamento` varchar(45) DEFAULT NULL,
+  `facebook` varchar(255) DEFAULT NULL,
+  `linkedin` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`matr`),
   UNIQUE KEY `email` (`email_pessoal`),
   KEY `diretoria` (`diretoria`),
@@ -244,44 +244,46 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `usuarios`
+-- Extraindo dados da tabela `usuarios`
 --
 
-INSERT INTO `usuarios` (`matr`, `nome`, `senha`, `email_pessoal`, `email_profissional`, `diretoria`, `cargo`, `ingresso_faculdade`, `ingresso_empresa`, `permissao`, `conectado`, `data_criacao`, `data_desligamento`) VALUES
-('1120120552', 'Paulo', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'paulo@paulo.com', '', 1, 'trainee', '0000-0', NULL, 2, 0, '2016-05-05 00:00:00', NULL),
-('12321321', '', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'email@email.com', '', 1, 'Trainee', '2010/1', NULL, 3, 0, '2016-05-05 00:00:00', NULL),
-('2010145673', 'Bla Bla', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'bla@email.com', '', 1, 'Trainee', '', '02/02/2016', 3, 0, '2016-02-14 17:45:08', NULL),
-('2010176654', 'Bruno Costa', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'bc@gmail.com', '', 1, 'Trainee', '2010/2', '11/02/2009', 2, 0, '2016-02-14 18:06:33', NULL),
-('2010876188', 'Bernadette', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 'ber@gmail.com', '', 2, 'Trainee', '', NULL, 2, 0, '2016-05-05 00:00:00', NULL),
-('2010987164', 'Carolina', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5', 'carol@gmail.com', '', 3, 'Trainee', '', NULL, 2, 0, '2016-05-05 00:00:00', NULL),
-('2012055214', 'Pauloa', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'paulo@paulo.ccom', '', 2, 'trainee', '0000-0', NULL, 1, 0, '2016-05-05 00:00:00', NULL),
-('2012055219', 'Paulo Henrique de Carvalho', 'ed5ec2ca35dc55e2ccf8f63dc7f52a2b378f87b1fda1a31afa30bbd67c17fa8b', 'paulocarvalho@dcc.ufmg.br', 'paulo.carvalho@ijunior.com.br', 4, 'Diretor', '2012/2', '13/11/2015', 1, 0, '2016-05-05 11:35:42', ''),
-('2014563787', 'JosÃ© Vitor', 'de7cd86411f5c3a6c693bdeab8d94a66979d33d05791b5ebd176837495130b9e', 'josev@gmail.com', 'jose@empresa.com', 2, 'Membro', '', '12/01/2016', 2, 0, '2016-02-14 17:42:59', NULL),
-('2015673777', 'oi', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'oi@email.com', '', 1, 'Trainee', '2015/2', '', 3, 0, '2016-02-14 17:47:40', NULL),
-('2015676234', 'Maria da Silva e Silva', '55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251', 'maria@pessoal.com', 'maria@profissional.com', 2, 'Trainee', '2', '0', 1, 4, '2016-02-14 17:38:59', NULL),
-('2015787172', 'Maria', '0206a97843b1ba4fbb147d472550ec3b5ee8aacadf3707522157240940d1bebd', 'maria@yahoo.com', 'maria@gmail.com', 3, 'trainee', '2015/2', NULL, 1, 0, '2016-05-05 00:00:00', NULL),
-('2017143672', 'Julio', '55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251', 'julio@gmail.com', '', 2, 'Membro', '', NULL, 2, 0, '2016-02-12 12:47:54', NULL),
-('2018676123', 'User', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'user@email.com', '', 3, 'Trainee', '', NULL, 3, 0, '2016-05-05 00:00:00', NULL),
-('2019872817', 'Jose da Silva', '55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251', 'jose@gmail.com', 'jose@yahoo.com', 1, 'trainee', '2017/2', NULL, 1, 0, '2016-05-05 00:00:00', NULL),
-('2019888777', 'qualquer', '75c16ebbb641ed154f47cbaa85ecc06fd394d2c4d0529ccd6b2ec211604e4515', 'qualquer@meialcm.com', '', 2, 'Diretor', '2018/2', '01/02/2016', 3, 0, '2016-02-14 17:48:25', NULL),
-('2101091231', 'marcos', 'b452bb3317b617a3a51051c5e210d04fc079f302593573bde4bea30c23ba6820', 'marcos@hotmail.com', 'marcos@bing.com', 1, 'Trainee', '2019/1', NULL, 3, 0, '2016-05-05 00:00:00', NULL),
-('21312312', 'carlos', '83f720439fec373a817eac1f5ecb45737022dc1b6527f8091721a8209db97905', 'carlos@gmail.com', 'carlos@yahoo.com', 1, 'trainee', '2010/1', NULL, 3, 0, '2016-05-05 00:00:00', NULL),
-('2131232131', 'Gustavo', '83f720439fec373a817eac1f5ecb45737022dc1b6527f8091721a8209db97905', 'gustavo@gmail.com', 'gustavo@yahoo.com', 1, 'trainee', '9281/1', NULL, 2, 0, '2016-05-05 00:00:00', NULL),
-('2132103123', 'Ester', '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 'ester@gmail.com', '', 2, 'Membro', '', NULL, 2, 0, '2016-05-05 00:00:00', NULL),
-('2172313213', 'Bruno', '441b02df090112b0b48b44e9eb6026d2ca1eec0d685c7d5712b59efbb9423a0c', 'bruno@gmail.com', 'bruno@gmail.com', 1, 'trainee', '21313', NULL, 2, 0, '2016-05-05 00:00:00', NULL);
+INSERT INTO `usuarios` (`matr`, `nome`, `senha`, `email_pessoal`, `email_profissional`, `diretoria`, `cargo`, `ingresso_faculdade`, `ingresso_empresa`, `permissao`, `conectado`, `data_criacao`, `data_desligamento`, `facebook`, `linkedin`) VALUES
+('1120120552', 'Paulo', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'paulo@paulo.com', '', 1, 'trainee', '0000-0', NULL, 2, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('12321321', '', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'email@email.com', '', 1, 'Trainee', '2010/1', NULL, 3, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2000000000', 'l', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'dd@gmail.com', '', 1, 'Trainee', '2016/1', '', 2, 0, '2016-08-07 20:17:02', '', NULL, NULL),
+('2010145673', 'Bla Bla', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'bla@email.com', '', 1, 'Trainee', '', '02/02/2016', 3, 0, '2016-02-14 17:45:08', NULL, NULL, NULL),
+('2010176654', 'Bruno Costa', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'bc@gmail.com', '', 1, 'Trainee', '2010/2', '11/02/2009', 2, 0, '2016-02-14 18:06:33', NULL, NULL, NULL),
+('2010876188', 'Bernadette', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 'ber@gmail.com', '', 2, 'Trainee', '', NULL, 2, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2010987164', 'Carolina', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5', 'carol@gmail.com', '', 3, 'Trainee', '', NULL, 2, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2012055214', 'Pauloa', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'paulo@paulo.ccom', '', 2, 'trainee', '0000-0', NULL, 1, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2012055219', 'Paulo Henrique de Carvalho', 'ed5ec2ca35dc55e2ccf8f63dc7f52a2b378f87b1fda1a31afa30bbd67c17fa8b', 'paulocarvalho@dcc.ufmg.br', 'paulo.carvalho@ijunior.com.br', 4, 'Diretor', '2012/2', '13/11/2015', 1, 0, '2016-05-05 11:35:42', '', NULL, NULL),
+('2014563787', 'JosÃ© Vitor', 'de7cd86411f5c3a6c693bdeab8d94a66979d33d05791b5ebd176837495130b9e', 'josev@gmail.com', 'jose@empresa.com', 2, 'Membro', '', '12/01/2016', 2, 0, '2016-02-14 17:42:59', NULL, NULL, NULL),
+('2015673777', 'oi', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'oi@email.com', '', 1, 'Trainee', '2015/2', '', 3, 0, '2016-02-14 17:47:40', NULL, NULL, NULL),
+('2015676234', 'Maria da Silva e Silva', '55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251', 'maria@pessoal.com', 'maria@profissional.com', 2, 'Trainee', '2', '0', 1, 4, '2016-02-14 17:38:59', NULL, NULL, NULL),
+('2015787172', 'Maria', '0206a97843b1ba4fbb147d472550ec3b5ee8aacadf3707522157240940d1bebd', 'maria@yahoo.com', 'maria@gmail.com', 3, 'trainee', '2015/2', NULL, 1, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2017143672', 'Julio', '55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251', 'julio@gmail.com', '', 2, 'Membro', '', NULL, 2, 0, '2016-02-12 12:47:54', NULL, NULL, NULL),
+('2018676123', 'User', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'user@email.com', '', 3, 'Trainee', '', NULL, 3, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2019872817', 'Jose da Silva', '55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251', 'jose@gmail.com', 'jose@yahoo.com', 1, 'trainee', '2017/2', NULL, 1, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2019888777', 'qualquer', '75c16ebbb641ed154f47cbaa85ecc06fd394d2c4d0529ccd6b2ec211604e4515', 'qualquer@meialcm.com', '', 2, 'Diretor', '2018/2', '01/02/2016', 3, 0, '2016-02-14 17:48:25', NULL, NULL, NULL),
+('2101091231', 'marcos', 'b452bb3317b617a3a51051c5e210d04fc079f302593573bde4bea30c23ba6820', 'marcos@hotmail.com', 'marcos@bing.com', 1, 'Trainee', '2019/1', NULL, 3, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('21312312', 'carlos', '83f720439fec373a817eac1f5ecb45737022dc1b6527f8091721a8209db97905', 'carlos@gmail.com', 'carlos@yahoo.com', 1, 'trainee', '2010/1', NULL, 3, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2131232131', 'Gustavo', '83f720439fec373a817eac1f5ecb45737022dc1b6527f8091721a8209db97905', 'gustavo@gmail.com', 'gustavo@yahoo.com', 1, 'trainee', '9281/1', NULL, 2, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2132103123', 'Ester', '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 'ester@gmail.com', '', 2, 'Membro', '', NULL, 2, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2172313213', 'Bruno', '441b02df090112b0b48b44e9eb6026d2ca1eec0d685c7d5712b59efbb9423a0c', 'bruno@gmail.com', 'bruno@gmail.com', 1, 'trainee', '21313', NULL, 2, 0, '2016-05-05 00:00:00', NULL, NULL, NULL),
+('2222222222', 'ff', '92c7d71b95dc6540fc58e891dbe649fe72ae5e93b5f42fd7fbdeefe6cef3e51d', 'fff@gmail.com', '', 1, 'Trainee', '2015/1', '', 1, 0, '2016-08-04 18:57:36', '', NULL, NULL);
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `evento`
+-- Limitadores para a tabela `evento`
 --
 ALTER TABLE `evento`
   ADD CONSTRAINT `fk_evento_usuarios1` FOREIGN KEY (`matr`) REFERENCES `usuarios` (`matr`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Constraints for table `usuarios`
+-- Limitadores para a tabela `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD CONSTRAINT `id_diretoria` FOREIGN KEY (`diretoria`) REFERENCES `diretorias` (`id_diretoria`) ON DELETE NO ACTION ON UPDATE NO ACTION;
