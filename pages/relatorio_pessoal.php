@@ -4,11 +4,29 @@
 
 	session_start();
 
+	date_default_timezone_set('America/Sao_Paulo');
+
 	// redirecionar para a pagina de login caso não esteja logado
 	if(!isset($_SESSION['matricula']))
     	header("Location: ../index.php");
 
 	$mesReferencia = ''; //para nao dar falha ao primeiro acesso da pagina
+
+	// para armazenar todos os intervalos de tempo da matricula que "bateu ponto"
+	$usuario = array("horarioEntrada" => array(),
+						"horarioSaida" => array(),
+						"permanencia" => array());
+
+	// matriz que recebe informacoes da presenca do usuario
+	$presenca = array("data" => array(),
+					"entrada" => array());
+
+	// variaveis usadas para realizar operacoes dos intervalos de presenca
+	$data_inicio = new DateTime();
+	$data_fim = new DateTime();
+
+
+
 
 // FILTRAR PERIODO DE CONSULTA PARA O RELATORIO DE HORAS DE TRABALHO ---
 	if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['mesReferencia'] != "") {
@@ -20,13 +38,13 @@
 		$paramMesReferenciaFim = $mesReferenciaFragmentado[1].'-'.($mesReferenciaFragmentado[0]+1)."-01";
 
 		//montando esqueleto da sentenca
-		$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=? AND `data` BETWEEN ? AND ?;");
-		$stmt->bind_param("sss", $matricula, $paramMesReferenciaInicio, $paramMesReferenciaFim);
+		$stmt = $conn->prepare("SELECT P.data, P.entrada FROM presenca P WHERE P.matr=? AND P.data BETWEEN ? AND ? ORDER BY P.data DESC;");
+		$stmt->bind_param("sss", $matricula,  $paramMesReferenciaInicio, $paramMesReferenciaFim);
 
 	} else {
 		// ELSE: listar todas as presencas do usuario
 		//montando esqueleto da sentenca
-		$stmt = $conn->prepare("SELECT `data`, `entrada` FROM `presenca` WHERE `matr`=?;");
+		$stmt = $conn->prepare("SELECT P.data, P.entrada FROM presenca P WHERE P.matr=? ORDER BY P.data DESC;");
 		// definir dependencias da query preparada
 		$stmt->bind_param("s", $matricula);
 	}
@@ -34,102 +52,30 @@
 	// definindo parametro comum e executando a query
 	$matricula = $_SESSION['matricula'];
 	$stmt->execute();
-
-	// matriz que recebe informacoes da presenca do usuario
-	$presenca = array("data" => array(),
-					"entrada" => array());
 	// alinhar variaveis de resultados com ordem
-	$stmt->bind_result($presenca_data, $presenca_entrada);
-
-	// variaveis usadas para realizar operacoes dos intervalos de presenca
-	$data_inicio = new DateTime();
-	$data_fim = new DateTime();
-
-	// para armazenar todos os intervalos de tempo da matricula que "bateu ponto"
-	$presenca_matricula = array("horarioEntrada" => array(),
-								"horarioSaida" => array(),
-								"permanencia" => array(),
-								"tipo" => array());
-
-	// variavel que realiza a soma das horas contaveis (presenca, evento, reuniao geral)
-	$soma_presenca = new DateTime('0000-00-00 00:00:00');
+	$stmt->bind_result($data, $entrada);
 
 	// definindo valores por linha encontrada no select
+	$k=0;
 	for($i=0; $stmt->fetch(); $i++) {
-	    array_push($presenca['data'], $presenca_data);
-	    array_push($presenca['entrada'], $presenca_entrada);
+	    array_push($presenca['data'], $data);
+	    array_push($presenca['entrada'], $entrada);
+	
+		if($presenca['entrada'][$i] == 1) {
+			$data_inicio = new DateTime($presenca['data'][$i]);
+			for ($j=$i-1; $j>0; $j--) {
+				$data_fim = new DateTime($presenca['data'][$j]);
+				$j=-1;
+			}
+		
+			$permanencia = date_diff($data_fim,$data_inicio)->format('%H:%I:%S');
 
-		$data_fim = new DateTime($presenca['data'][$i]);
-		// se nao for a primeira linha de result E nos intervalos entrada-saida, e nao saida-entrada
-		if($i > 0 && ($presenca['entrada'][$i-1] - $presenca['entrada'][$i]) == 1) {
-			array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
-			$soma_presenca->add(date_diff($data_inicio, $data_fim));
-	    	array_push($presenca_matricula['tipo'], "Presencial");
-		}
-		// linhas pares: membro bate ponto para entrar. Linhas impares: membro bate ponto para sair.
-		if($i % 2 == 0)
-			array_push($presenca_matricula['horarioEntrada'], $data_fim);
-		else
-			array_push($presenca_matricula['horarioSaida'], $data_fim);
-
-		$data_inicio = clone $data_fim;
-	}
-	// SELECT *, yearweek(`data`) FROM `presenca` WHERE yearweek(`data`) BETWEEN yearweek('2016-03-01') AND yearweek('2016-03-31') GROUP BY yearweek(`data`) 
-
-	echo $soma_presenca->format('d-m-y');
-
-	// Caso especial tratado: caso o usuario AINDA esta na empresa
-	if(count($presenca_matricula['horarioEntrada']) > count($presenca_matricula['horarioSaida']))
-		array_pop($presenca_matricula['horarioEntrada']);
-
-// LISTAR HORARIOS DE EVENTO ---
-	if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['mesReferencia'] != "") {
-		$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=? AND `data_inicio` BETWEEN ? AND ?;");
-		$stmt->bind_param("sss", $matricula, $paramMesReferenciaInicio, $paramMesReferenciaFim);
-	} else {
-		$stmt = $conn->prepare("SELECT `nome_evento`, `data_inicio`, `data_fim` FROM `evento` WHERE `matr`=?");
-		$stmt->bind_param("s", $matricula);
-	}
-
-	$stmt->execute();
-
-	$stmt->bind_result($nomeEvento, $inicioEvento, $fimEvento);
-	for($i=0; $stmt->fetch(); $i++) {
-		$data_inicio = new DateTime($inicioEvento);
-		$data_fim = new DateTime($fimEvento);
-
-		array_push($presenca_matricula['horarioEntrada'], $data_inicio);
-		array_push($presenca_matricula['horarioSaida'], $data_fim);
-		array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
-	    array_push($presenca_matricula['tipo'], $nomeEvento);
-	}
-
-// LISTAR PRESENCA EM REUNIÃO GERAL ---
-	if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['mesReferencia'] != "") {
-		$stmt = $conn->prepare(
-			"SELECT `data_inicio`, `data_fim` FROM `reuniao_geral` AS rg INNER JOIN
-			`presenca_reuniao` AS pr ON rg.`id_reuniao`=pr.`id_reuniao` WHERE pr.`matr`=?
-			AND `data_inicio` BETWEEN ? AND ?;");
-		$stmt->bind_param("sss", $matricula, $paramMesReferenciaInicio, $paramMesReferenciaFim);
-	} else {
-		$stmt = $conn->prepare(
-			"SELECT `data_inicio`, `data_fim` FROM `reuniao_geral` AS rg INNER JOIN
-			`presenca_reuniao` AS pr ON rg.`id_reuniao`=pr.`id_reuniao` WHERE pr.`matr`=?");
-		// definir dependencias da query preparada
-		$stmt->bind_param("s", $matricula);
-	}
-	$stmt->execute();
-
-	$stmt->bind_result($inicioReuniao, $fimReuniao);
-	for($i=0; $stmt->fetch(); $i++) {
-		$data_inicio = new DateTime($inicioReuniao);
-		$data_fim = new DateTime($fimReuniao);
-
-		array_push($presenca_matricula['horarioEntrada'], $data_inicio);
-		array_push($presenca_matricula['horarioSaida'], $data_fim);
-		array_push($presenca_matricula['permanencia'], date_diff($data_inicio, $data_fim)->format('%H:%I:%S'));
-	    array_push($presenca_matricula['tipo'], 'Reunião Geral');
-	}
+			$usuario['horario_entrada'][$k] = $data_inicio;
+			$usuario['horario_saida'][$k] = $data_fim;
+			$usuario['permanencia'][$k] = $permanencia;			
+			$k++;
+		}	
+	}	
 
 // RECONHECER NOME DE USUARIO
 	$stmt = $conn->prepare("SELECT `nome` FROM `usuarios` WHERE `matr`=?");
@@ -200,23 +146,15 @@
 						</form>
 						</div>
 
-						<br>
+						
 
-						<div class="row">
-							<div class="large-12 columns text-center">
-								<a href="#" class="small round button">Imprimir relatório </a>
-							</div>
-						</div>
-
-						<br>
-
-						<div class="row">
+						<!-- <div class="row">
 							<div class="large-12 columns">
 								<div id="grafico">Gerando gráfico, aguarde...</div>
 							</div>
-						</div>
+						</div> -->
 
-						<br><br>
+						
 
 						<table class="large-12 small-12 columns">
 							<thead>
@@ -224,18 +162,18 @@
 									<th class="text-center">Horário Entrada</th>
 									<th class="text-center">Horário Saída</th>
 									<th class="text-center">Permanência</th>
-									<th class="text-center">Tipo</th>
+									<!--<th class="text-center">Tipo</th>-->
 								</tr>
 							</thead>
 							<tbody>
 							<?php
-								for($i=0; $i < count($presenca_matricula['permanencia']); $i++) {
+								for($i=0; $i < count($usuario['permanencia']); $i++) {
 							?>
 								<tr>
-									<td class="text-center"><?php echo $presenca_matricula['horarioEntrada'][$i]->format('d/m/Y H:i:s'); ?></td>
-									<td class="text-center"><?php echo $presenca_matricula['horarioSaida'][$i]->format('d/m/Y H:i:s');; ?></td>
-									<td class="text-center"><?php echo $presenca_matricula['permanencia'][$i]; ?></td>
-									<td class="text-center"><?php echo $presenca_matricula['tipo'][$i]; ?></td>
+									<td class="text-center"><?php echo $usuario['horario_entrada'][$i]->format('d/m/Y H:i:s'); ?></td>
+									<td class="text-center"><?php echo $usuario['horario_saida'][$i]->format('d/m/Y H:i:s');; ?></td>
+									<td class="text-center"><?php echo $usuario['permanencia'][$i]; ?></td>
+									<!--<td class="text-center"><span style="text-transform: uppercase;"><?php echo $usuario['tipo'][$i]; ?></td>-->
 								</tr>
 							<?php
 								}
@@ -246,13 +184,6 @@
 							?>
 							</tbody>
 						</table>
-
-						<div class="row">
-							<div class="large-12 columns text-center">
-								<a href="#" class="small round button">Imprimir relatório </a>
-							</div>
-						</div>
-
 					</div>
 				</div>
 			</div>
@@ -284,41 +215,6 @@
 	</script>
 	<!-- Carrega AJAX API para Google Charts-->
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	<script type="text/javascript">
-
-		// Load the Visualization API and the piechart package.
-		google.charts.load('current', {packages: ['corechart'], 'language': 'pt-br'});
-
-		// Set a callback to run when the Google Visualization API is loaded.
-		google.charts.setOnLoadCallback(drawChart);
-
-		// Callback that creates and populates a data table,
-		// instantiates the pie chart, passes in the data and
-		// draws it.
-		function drawChart() {
-			// Create the data table.
-			var data = google.visualization.arrayToDataTable([
-				['Semanas', 'Horas de Presença', 'Média'],
-				['31/01/2016',  165,	614.6],
-				['07/02/2016',  135,      682],
-				['14/02/2016',  157,      623]
-			]);
-
-			// Set chart options
-			var options = {
-				title : 'Relatório de Presença Pessoal',
-				vAxis: {title: 'Horas Acumuladas'},
-				hAxis: {title: 'Semanas'},
-				seriesType: 'bars',
-				series: {1: {type: 'line'}}, // A quinta coluna da tabela de dados é gráfico de linha
-				height: '500'
-			};
-
-			// Instantiate and draw our chart, passing in some options.
-			var chart = new google.visualization.ComboChart(document.getElementById('grafico'));
-			chart.draw(data, options);
-		}
-    </script>
 </body>
 <?php
 	$conn->close();

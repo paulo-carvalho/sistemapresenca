@@ -44,13 +44,13 @@
 						<li><a href="listar_usuarios.php">Listar</a></li>						
 					</ul>
 				</li>
-				<li class="has-dropdown">
+				<!--<li class="has-dropdown">
 					<a href="#">Horários</a>
 					<ul class="dropdown">
 						<li><a href="horarios_usuario.php">Presenciais Fixos </a></li>
 						<li><a href="lancar_horas.php">Não Presenciais</a></li>
 					</ul>
-				</li>
+				</li>-->
 				<li class="has-dropdown">
 					<a href="#">Relatório</a>
 					<ul class="dropdown">
